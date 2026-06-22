@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('riwayat_status_pesanans', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('pesanan_id')->constrained('pesanans')->cascadeOnDelete();
+            $table->string('status');
+            $table->text('catatan')->nullable();
+            $table->timestamp('waktu_status')->nullable();
             $table->timestamps();
         });
     }

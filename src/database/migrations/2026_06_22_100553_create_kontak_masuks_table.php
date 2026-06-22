@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('kontak_masuks', function (Blueprint $table) {
             $table->id();
+            $table->string('nama');
+            $table->string('email')->nullable();
+            $table->string('nomor_whatsapp')->nullable();
+            $table->string('subjek');
+            $table->text('pesan');
+            $table->enum('status_pesan', ['baru', 'dibaca', 'dibalas'])->default('baru');
             $table->timestamps();
         });
     }

@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('hari_liburs', function (Blueprint $table) {
             $table->id();
+            $table->date('tanggal');
+            $table->string('nama_libur');
+            $table->text('keterangan')->nullable();
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }

@@ -13,6 +13,16 @@ return new class extends Migration
     {
         Schema::create('pengaturan_websites', function (Blueprint $table) {
             $table->id();
+            $table->string('nama_website')->default('Tukang Print Dadakan');
+            $table->string('logo')->nullable();
+            $table->string('favicon')->nullable();
+            $table->string('hero_title')->nullable();
+            $table->text('hero_subtitle')->nullable();
+            $table->string('hero_image')->nullable();
+            $table->string('nomor_whatsapp')->nullable();
+            $table->string('email')->nullable();
+            $table->text('alamat')->nullable();
+            $table->string('jam_operasional')->nullable();
             $table->timestamps();
         });
     }
