@@ -2,20 +2,21 @@
 
 namespace App\Filament\Admin\Widgets;
 
-use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Widgets\TableWidget as BaseWidget;
+use Filament\Widgets\ChartWidget;
 
-class LayananTerlaris extends BaseWidget
+class LayananTerlaris extends ChartWidget
 {
-    public function table(Table $table): Table
+    protected static ?string $heading = 'Chart';
+
+    protected function getData(): array
     {
-        return $table
-            ->query(
-                // ...
-            )
-            ->columns([
-                // ...
-            ]);
+        return [
+            //
+        ];
+    }
+
+    protected function getType(): string
+    {
+        return 'pie';
     }
 }
