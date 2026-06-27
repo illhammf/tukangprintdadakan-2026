@@ -32,6 +32,9 @@
                 <p class="text-gray-500">
 
                     Semoga harimu menyenangkan 😊
+                    <br>
+                    ----------------------------------------------
+                    <br>
 
                 </p>
 
