@@ -55,7 +55,6 @@ class AdminPanelProvider extends PanelProvider
                 StatistikDashboard::class,
                 PesananTerbaru::class,
                 LatestAccessLogs::class,
-                \Awcodes\Overlook\Widgets\OverlookWidget::class,
                 
             ])
             ->navigationGroups([
@@ -105,10 +104,6 @@ class AdminPanelProvider extends PanelProvider
                     ->enabledOn([
                         'auth.login',
                         'auth.password',
-                    ]),
-                \Awcodes\Overlook\OverlookPlugin::make()
-                    ->includes([
-                        \App\Filament\Admin\Resources\UserResource::class,
                     ]),
                 \Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin::make()
                     ->slug('my-profile')
