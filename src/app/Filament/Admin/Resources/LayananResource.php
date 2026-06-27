@@ -23,7 +23,34 @@ class LayananResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Select::make('kategori_layanan_id')
+                    ->relationship('kategoriLayanan', 'id')
+                    ->required(),
+                Forms\Components\TextInput::make('nama_layanan')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('slug')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\Textarea::make('deskripsi')
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('harga_dasar')
+                    ->required()
+                    ->numeric()
+                    ->default(0.00),
+                Forms\Components\TextInput::make('satuan')
+                    ->required()
+                    ->maxLength(255)
+                    ->default('layanan'),
+                Forms\Components\TextInput::make('gambar')
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\Toggle::make('butuh_upload_file')
+                    ->required(),
+                Forms\Components\Toggle::make('bisa_online')
+                    ->required(),
+                Forms\Components\Toggle::make('status')
+                    ->required(),
             ]);
     }
 
@@ -31,7 +58,34 @@ class LayananResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('kategoriLayanan.id')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('nama_layanan')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('slug')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('harga_dasar')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('satuan')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('gambar')
+                    ->searchable(),
+                Tables\Columns\IconColumn::make('butuh_upload_file')
+                    ->boolean(),
+                Tables\Columns\IconColumn::make('bisa_online')
+                    ->boolean(),
+                Tables\Columns\IconColumn::make('status')
+                    ->boolean(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

@@ -23,7 +23,15 @@ class HariLiburResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\DatePicker::make('tanggal')
+                    ->required(),
+                Forms\Components\TextInput::make('nama_libur')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\Textarea::make('keterangan')
+                    ->columnSpanFull(),
+                Forms\Components\Toggle::make('status')
+                    ->required(),
             ]);
     }
 
@@ -31,7 +39,21 @@ class HariLiburResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('tanggal')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('nama_libur')
+                    ->searchable(),
+                Tables\Columns\IconColumn::make('status')
+                    ->boolean(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

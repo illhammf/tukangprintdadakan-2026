@@ -23,7 +23,51 @@ class PesananResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Select::make('user_id')
+                    ->relationship('user', 'name')
+                    ->default(null),
+                Forms\Components\TextInput::make('kode_pesanan')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('nama_pelanggan')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('email')
+                    ->email()
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\TextInput::make('nomor_whatsapp')
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\DatePicker::make('tanggal_pesan')
+                    ->required(),
+                Forms\Components\DatePicker::make('tanggal_pengambilan'),
+                Forms\Components\TextInput::make('jam_pengambilan'),
+                Forms\Components\TextInput::make('lokasi_pengambilan')
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\Textarea::make('detail_lokasi')
+                    ->columnSpanFull(),
+                Forms\Components\Textarea::make('catatan')
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('subtotal')
+                    ->required()
+                    ->numeric()
+                    ->default(0.00),
+                Forms\Components\TextInput::make('biaya_tambahan')
+                    ->required()
+                    ->numeric()
+                    ->default(0.00),
+                Forms\Components\TextInput::make('biaya_pengiriman')
+                    ->required()
+                    ->numeric()
+                    ->default(0.00),
+                Forms\Components\TextInput::make('total_harga')
+                    ->required()
+                    ->numeric()
+                    ->default(0.00),
+                Forms\Components\TextInput::make('status_pesanan')
+                    ->required(),
             ]);
     }
 
@@ -31,7 +75,47 @@ class PesananResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('user.name')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('kode_pesanan')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('nama_pelanggan')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('nomor_whatsapp')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('tanggal_pesan')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('tanggal_pengambilan')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('jam_pengambilan'),
+                Tables\Columns\TextColumn::make('lokasi_pengambilan')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('subtotal')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('biaya_tambahan')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('biaya_pengiriman')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('total_harga')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('status_pesanan'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

@@ -23,7 +23,21 @@ class PengirimanResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Select::make('pesanan_id')
+                    ->relationship('pesanan', 'id')
+                    ->required(),
+                Forms\Components\TextInput::make('metode_pengiriman')
+                    ->required(),
+                Forms\Components\Textarea::make('alamat_pengiriman')
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('biaya_pengiriman')
+                    ->required()
+                    ->numeric()
+                    ->default(0.00),
+                Forms\Components\TextInput::make('status_pengiriman')
+                    ->required(),
+                Forms\Components\Textarea::make('catatan_pengiriman')
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -31,7 +45,22 @@ class PengirimanResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('pesanan.id')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('metode_pengiriman'),
+                Tables\Columns\TextColumn::make('biaya_pengiriman')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('status_pengiriman'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

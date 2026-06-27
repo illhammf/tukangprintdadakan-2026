@@ -23,7 +23,15 @@ class RiwayatStatusPesananResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Select::make('pesanan_id')
+                    ->relationship('pesanan', 'id')
+                    ->required(),
+                Forms\Components\TextInput::make('status')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\Textarea::make('catatan')
+                    ->columnSpanFull(),
+                Forms\Components\DateTimePicker::make('waktu_status'),
             ]);
     }
 
@@ -31,7 +39,22 @@ class RiwayatStatusPesananResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('pesanan.id')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('waktu_status')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

@@ -23,7 +23,24 @@ class KontakMasukResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('nama')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('email')
+                    ->email()
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\TextInput::make('nomor_whatsapp')
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\TextInput::make('subjek')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\Textarea::make('pesan')
+                    ->required()
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('status_pesan')
+                    ->required(),
             ]);
     }
 
@@ -31,7 +48,23 @@ class KontakMasukResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('nama')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('nomor_whatsapp')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('subjek')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('status_pesan'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
