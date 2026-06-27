@@ -28,6 +28,7 @@ use App\Filament\Admin\Widgets\PesananTerbaru;
 use App\Filament\Admin\Widgets\RingkasanPendapatan;
 use App\Filament\Admin\Widgets\SambutanDashboard;
 use App\Filament\Admin\Widgets\StatistikDashboard;
+# use App\Filament\Admin\Widgets\QuickActionDashboard;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -56,13 +57,21 @@ class AdminPanelProvider extends PanelProvider
             ->discoverClusters(in: app_path('Filament/Admin/Clusters'), for: 'App\\Filament\\Admin\\Clusters')
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
             ->widgets([
-            SambutanDashboard::class,
-            StatistikDashboard::class,
-            RingkasanPendapatan::class,
-            PengambilanBesok::class,
-            PesananTerbaru::class,
-            LayananTerlaris::class,
-            LatestAccessLogs::class,
+                SambutanDashboard::class,
+
+                # QuickActionDashboard::class,
+
+                StatistikDashboard::class,
+
+                RingkasanPendapatan::class,
+
+                PengambilanBesok::class,
+
+                PesananTerbaru::class,
+
+                LayananTerlaris::class,
+
+                LatestAccessLogs::class,
             ])
             ->navigationGroups([
                 NavigationGroup::make()
