@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\Models\Activity;
+use Carbon\Carbon; // Carbon adalah library untuk memanipulasi tanggal dan waktu di PHP.
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -42,5 +43,7 @@ class AppServiceProvider extends ServiceProvider
         MountableAction::configureUsing(function (MountableAction $action) {
             $action->modalFooterActionsAlignment(Alignment::Right);
         });
+
+        Carbon::setLocale('id');
     }
 }
