@@ -23,6 +23,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 use App\Filament\Admin\Widgets\PesananTerbaru;
 use App\Filament\Admin\Widgets\StatistikDashboard;
+use App\Filament\Admin\Widgets\LatestAccessLogs;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -53,6 +54,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 StatistikDashboard::class,
                 PesananTerbaru::class,
+                LatestAccessLogs::class,
                 \Awcodes\Overlook\Widgets\OverlookWidget::class,
                 
             ])

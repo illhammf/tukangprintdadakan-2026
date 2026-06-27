@@ -14,7 +14,7 @@ class KontakMasukResource extends Resource
 {
     protected static ?string $model = KontakMasuk::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
+    protected static ?string $navigationIcon = 'heroicon-s-inbox-stack';
 
     protected static ?string $navigationGroup = 'Website';
 

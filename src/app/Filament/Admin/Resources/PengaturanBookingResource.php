@@ -14,7 +14,7 @@ class PengaturanBookingResource extends Resource
 {
     protected static ?string $model = PengaturanBooking::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
+    protected static ?string $navigationIcon = 'heroicon-s-calendar-days';
 
     protected static ?string $navigationGroup = 'Website';
 

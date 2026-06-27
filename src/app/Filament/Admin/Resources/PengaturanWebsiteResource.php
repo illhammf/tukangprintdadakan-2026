@@ -14,7 +14,7 @@ class PengaturanWebsiteResource extends Resource
 {
     protected static ?string $model = PengaturanWebsite::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-globe-alt';
+    protected static ?string $navigationIcon = 'heroicon-s-globe-alt';
 
     protected static ?string $navigationGroup = 'Website';
 

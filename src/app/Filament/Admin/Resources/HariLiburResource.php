@@ -14,7 +14,7 @@ class HariLiburResource extends Resource
 {
     protected static ?string $model = HariLibur::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-calendar';
+    protected static ?string $navigationIcon = 'heroicon-s-calendar';
 
     protected static ?string $navigationGroup = 'Website';
 
