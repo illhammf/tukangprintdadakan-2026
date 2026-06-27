@@ -2,9 +2,21 @@
 
 namespace App\Filament\Admin\Widgets;
 
-use Filament\Widgets\Widget;
+use Filament\Widgets\ChartWidget;
 
-class RingkasanPendapatan extends Widget
+class RingkasanPendapatan extends ChartWidget
 {
-    protected static string $view = 'filament.admin.widgets.ringkasan-pendapatan';
+    protected static ?string $heading = 'Chart';
+
+    protected function getData(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    protected function getType(): string
+    {
+        return 'bar';
+    }
 }

@@ -58,7 +58,6 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
             SambutanDashboard::class,
             StatistikDashboard::class,
-            RingkasanPendapatan::class,
             PesananTerbaru::class,
             PengambilanBesok::class,
             LayananTerlaris::class,
