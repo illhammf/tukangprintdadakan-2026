@@ -37,10 +37,8 @@
 
             </div>
 
-            <div class="hidden lg:block text-8xl">
-
-                🖨️
-
+            <div class="hidden lg:block">
+                <img src="{{ asset('images/placeholder.png') }}" class="h-32 w-32 rounded-2xl object-cover" alt="Tukang Print Dadakan">
             </div>
 
         </div>
