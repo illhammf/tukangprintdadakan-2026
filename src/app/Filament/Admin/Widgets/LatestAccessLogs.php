@@ -13,9 +13,14 @@ use Spatie\Activitylog\Models\Activity;
 class LatestAccessLogs extends BaseWidget
 {
     use HasWidgetShield;
-    protected static ?int $sort = 100;
 
-    protected int|string|array $columnSpan = 2;
+    protected static ?int $sort = 99;
+
+    protected int|string|array $columnSpan = 'full';
+
+    protected static ?string $heading = 'Aktivitas Terbaru';
+
+    protected static ?string $description = 'Riwayat aktivitas terbaru yang terjadi pada dashboard admin.';
 
     protected static function getLogNameColors(): array
     {
@@ -48,41 +53,70 @@ class LatestAccessLogs extends BaseWidget
     {
         return $table
             ->query(
-                Activity::query()->latest()->take(5)
+                Activity::query()
+                    ->latest()
+                    ->limit(5)
             )
+            ->heading('Aktivitas Terbaru')
+            ->description('Pantau perubahan data, login, dan aktivitas penting terbaru.')
             ->columns([
                 Tables\Columns\TextColumn::make('log_name')
+                    ->label('Tipe')
                     ->badge()
                     ->colors(static::getLogNameColors())
-                    ->label(__('filament-logger::filament-logger.resource.label.type'))
-                    ->formatStateUsing(fn ($state) => ucwords($state))
+                    ->formatStateUsing(fn (?string $state): string => $state ? Str::of($state)->headline()->toString() : '-')
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('event')
-                    ->label(__('filament-logger::filament-logger.resource.label.event'))
+                    ->label('Event')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'created' => 'Dibuat',
+                        'updated' => 'Diubah',
+                        'deleted' => 'Dihapus',
+                        'login' => 'Login',
+                        'logout' => 'Logout',
+                        default => $state ? Str::of($state)->headline()->toString() : '-',
+                    })
+                    ->color(fn (?string $state): string => match ($state) {
+                        'created' => 'success',
+                        'updated' => 'warning',
+                        'deleted' => 'danger',
+                        'login' => 'info',
+                        'logout' => 'gray',
+                        default => 'gray',
+                    })
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('description')
-                    ->label(__('filament-logger::filament-logger.resource.label.description'))
-                    ->wrap(),
+                    ->label('Deskripsi')
+                    ->wrap()
+                    ->limit(80)
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('subject_type')
-                    ->label(__('filament-logger::filament-logger.resource.label.subject'))
-                    ->formatStateUsing(function ($state, Model $record) {
+                    ->label('Data')
+                    ->formatStateUsing(function ($state, Model $record): string {
                         /** @var Activity $record */
                         if (! $state) {
                             return '-';
                         }
 
-                        return Str::of($state)->afterLast('\\')->headline() . ' # ' . $record->subject_id;
+                        $modelName = Str::of($state)->afterLast('\\')->headline();
+
+                        return $modelName . ' #' . $record->subject_id;
                     }),
 
                 Tables\Columns\TextColumn::make('causer.name')
-                    ->label(__('filament-logger::filament-logger.resource.label.user')),
+                    ->label('User')
+                    ->placeholder('Sistem')
+                    ->icon('heroicon-o-user'),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label(__('filament-logger::filament-logger.resource.label.logged_at'))
-                    ->dateTime(config('d/m/Y H:i A'))
-                    ->sortable(),
+                    ->label('Waktu')
+                    ->dateTime('d M Y H:i')
+                    ->sortable()
+                    ->since(),
             ])
             ->paginated(false);
     }

@@ -21,6 +21,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
+use App\Filament\Admin\Widgets\PesananTerbaru;
+use App\Filament\Admin\Widgets\StatistikDashboard;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -49,7 +51,10 @@ class AdminPanelProvider extends PanelProvider
             ->discoverClusters(in: app_path('Filament/Admin/Clusters'), for: 'App\\Filament\\Admin\\Clusters')
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
             ->widgets([
+                StatistikDashboard::class,
+                PesananTerbaru::class,
                 \Awcodes\Overlook\Widgets\OverlookWidget::class,
+                
             ])
             ->navigationGroups([
                 NavigationGroup::make()
