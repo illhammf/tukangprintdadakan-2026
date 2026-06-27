@@ -55,6 +55,8 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label('Master Data'),
                 NavigationGroup::make()
+                    ->label('Pemesanan'),
+                NavigationGroup::make()
                     ->label('Website'),
                 NavigationGroup::make()
                     ->label('Administration'),

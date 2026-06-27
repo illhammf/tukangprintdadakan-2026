@@ -3,131 +3,307 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\PesananResource\Pages;
-use App\Filament\Admin\Resources\PesananResource\RelationManagers;
 use App\Models\Pesanan;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PesananResource extends Resource
 {
     protected static ?string $model = Pesanan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-s-shopping-bag';
+
+    protected static ?string $navigationGroup = 'Pemesanan';
+
+    protected static ?string $navigationLabel = 'Pesanan';
+
+    protected static ?string $modelLabel = 'Pesanan';
+
+    protected static ?string $pluralModelLabel = 'Pesanan';
+
+    protected static ?int $navigationSort = 1;
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = Pesanan::where('status_pesanan', 'menunggu_verifikasi')->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->default(null),
-                Forms\Components\TextInput::make('kode_pesanan')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('nama_pelanggan')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\TextInput::make('nomor_whatsapp')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\DatePicker::make('tanggal_pesan')
-                    ->required(),
-                Forms\Components\DatePicker::make('tanggal_pengambilan'),
-                Forms\Components\TextInput::make('jam_pengambilan'),
-                Forms\Components\TextInput::make('lokasi_pengambilan')
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\Textarea::make('detail_lokasi')
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('catatan')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('subtotal')
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
-                Forms\Components\TextInput::make('biaya_tambahan')
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
-                Forms\Components\TextInput::make('biaya_pengiriman')
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
-                Forms\Components\TextInput::make('total_harga')
-                    ->required()
-                    ->numeric()
-                    ->default(0.00),
-                Forms\Components\TextInput::make('status_pesanan')
-                    ->required(),
+                Forms\Components\Section::make('Informasi Pelanggan')
+                    ->description('Data pelanggan yang membuat pesanan.')
+                    ->icon('heroicon-o-user')
+                    ->schema([
+                        Forms\Components\Select::make('user_id')
+                            ->label('Akun Pelanggan')
+                            ->relationship('user', 'name')
+                            ->searchable()
+                            ->preload(),
+
+                        Forms\Components\TextInput::make('nama_pelanggan')
+                            ->label('Nama Pelanggan')
+                            ->required()
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('email')
+                            ->label('Email')
+                            ->email()
+                            ->maxLength(255),
+
+                        Forms\Components\TextInput::make('nomor_whatsapp')
+                            ->label('Nomor WhatsApp')
+                            ->tel()
+                            ->maxLength(255),
+                    ])
+                    ->columns(2),
+
+                Forms\Components\Section::make('Informasi Pesanan')
+                    ->description('Data utama pesanan dan jadwal pengambilan.')
+                    ->icon('heroicon-o-document-text')
+                    ->schema([
+                        Forms\Components\TextInput::make('kode_pesanan')
+                            ->label('Kode Pesanan')
+                            ->placeholder('TPD-20260627-0001')
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(255),
+
+                        Forms\Components\DatePicker::make('tanggal_pesan')
+                            ->label('Tanggal Pesan')
+                            ->native(false)
+                            ->displayFormat('d M Y')
+                            ->required()
+                            ->default(now()),
+
+                        Forms\Components\DatePicker::make('tanggal_pengambilan')
+                            ->label('Tanggal Pengambilan')
+                            ->native(false)
+                            ->displayFormat('d M Y'),
+
+                        Forms\Components\TimePicker::make('jam_pengambilan')
+                            ->label('Jam Pengambilan')
+                            ->seconds(false),
+
+                        Forms\Components\Select::make('lokasi_pengambilan')
+                            ->label('Lokasi Pengambilan')
+                            ->options([
+                                'Kampus UEU Tangerang' => 'Kampus UEU Tangerang',
+                                'Diantar' => 'Diantar',
+                                'Ojek Online' => 'Ojek Online',
+                                'Lainnya' => 'Lainnya',
+                            ])
+                            ->searchable(),
+
+                        Forms\Components\Select::make('status_pesanan')
+                            ->label('Status Pesanan')
+                            ->options([
+                                'menunggu_verifikasi' => 'Menunggu Verifikasi',
+                                'diproses' => 'Diproses',
+                                'siap_diambil' => 'Siap Diambil',
+                                'selesai' => 'Selesai',
+                                'dibatalkan' => 'Dibatalkan',
+                            ])
+                            ->default('menunggu_verifikasi')
+                            ->required(),
+
+                        Forms\Components\Textarea::make('detail_lokasi')
+                            ->label('Detail Lokasi')
+                            ->placeholder('Contoh: COD area kampus, dekat lobby, atau alamat pengantaran.')
+                            ->rows(3)
+                            ->columnSpanFull(),
+
+                        Forms\Components\Textarea::make('catatan')
+                            ->label('Catatan Pesanan')
+                            ->placeholder('Catatan tambahan dari pelanggan atau admin.')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(3),
+
+                Forms\Components\Section::make('Ringkasan Biaya')
+                    ->description('Total biaya pesanan berdasarkan layanan dan biaya tambahan.')
+                    ->icon('heroicon-o-banknotes')
+                    ->schema([
+                        Forms\Components\TextInput::make('subtotal')
+                            ->label('Subtotal')
+                            ->prefix('Rp')
+                            ->numeric()
+                            ->required()
+                            ->default(0),
+
+                        Forms\Components\TextInput::make('biaya_tambahan')
+                            ->label('Biaya Tambahan')
+                            ->prefix('Rp')
+                            ->numeric()
+                            ->required()
+                            ->default(0),
+
+                        Forms\Components\TextInput::make('biaya_pengiriman')
+                            ->label('Biaya Pengiriman')
+                            ->prefix('Rp')
+                            ->numeric()
+                            ->required()
+                            ->default(0),
+
+                        Forms\Components\TextInput::make('total_harga')
+                            ->label('Total Harga')
+                            ->prefix('Rp')
+                            ->numeric()
+                            ->required()
+                            ->default(0),
+                    ])
+                    ->columns(4),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('kode_pesanan')
-                    ->searchable(),
+                    ->label('Kode')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->weight('bold')
+                    ->badge()
+                    ->color('gray'),
+
                 Tables\Columns\TextColumn::make('nama_pelanggan')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nomor_whatsapp')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_pesan')
-                    ->date()
-                    ->sortable(),
+                    ->label('Pelanggan')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn (Pesanan $record): ?string => $record->nomor_whatsapp),
+
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Akun')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('tanggal_pengambilan')
-                    ->date()
+                    ->label('Ambil')
+                    ->date('d M Y')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('jam_pengambilan'),
+
+                Tables\Columns\TextColumn::make('jam_pengambilan')
+                    ->label('Jam'),
+
                 Tables\Columns\TextColumn::make('lokasi_pengambilan')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('subtotal')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('biaya_tambahan')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('biaya_pengiriman')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Lokasi')
+                    ->searchable()
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('total_harga')
-                    ->numeric()
+                    ->label('Total')
+                    ->money('IDR')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('status_pesanan'),
+
+                Tables\Columns\TextColumn::make('status_pesanan')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'menunggu_verifikasi' => 'Menunggu Verifikasi',
+                        'diproses' => 'Diproses',
+                        'siap_diambil' => 'Siap Diambil',
+                        'selesai' => 'Selesai',
+                        'dibatalkan' => 'Dibatalkan',
+                        default => ucfirst($state),
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'menunggu_verifikasi' => 'warning',
+                        'diproses' => 'info',
+                        'siap_diambil' => 'success',
+                        'selesai' => 'gray',
+                        'dibatalkan' => 'danger',
+                        default => 'gray',
+                    }),
+
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Dibuat')
+                    ->dateTime('d M Y H:i')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->since(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status_pesanan')
+                    ->label('Status Pesanan')
+                    ->options([
+                        'menunggu_verifikasi' => 'Menunggu Verifikasi',
+                        'diproses' => 'Diproses',
+                        'siap_diambil' => 'Siap Diambil',
+                        'selesai' => 'Selesai',
+                        'dibatalkan' => 'Dibatalkan',
+                    ]),
+
+                Tables\Filters\SelectFilter::make('lokasi_pengambilan')
+                    ->label('Lokasi Pengambilan')
+                    ->options([
+                        'Kampus UEU Tangerang' => 'Kampus UEU Tangerang',
+                        'Diantar' => 'Diantar',
+                        'Ojek Online' => 'Ojek Online',
+                        'Lainnya' => 'Lainnya',
+                    ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->label('Lihat'),
+
+                Tables\Actions\Action::make('verifikasi')
+                    ->label('Verifikasi')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn (Pesanan $record): bool => $record->status_pesanan === 'menunggu_verifikasi')
+                    ->action(fn (Pesanan $record) => $record->update([
+                        'status_pesanan' => 'diproses',
+                    ])),
+
+                Tables\Actions\Action::make('siap_diambil')
+                    ->label('Siap Diambil')
+                    ->icon('heroicon-o-archive-box')
+                    ->color('info')
+                    ->visible(fn (Pesanan $record): bool => $record->status_pesanan === 'diproses')
+                    ->action(fn (Pesanan $record) => $record->update([
+                        'status_pesanan' => 'siap_diambil',
+                    ])),
+
+                Tables\Actions\Action::make('selesai')
+                    ->label('Selesai')
+                    ->icon('heroicon-o-check-badge')
+                    ->color('gray')
+                    ->visible(fn (Pesanan $record): bool => $record->status_pesanan === 'siap_diambil')
+                    ->action(fn (Pesanan $record) => $record->update([
+                        'status_pesanan' => 'selesai',
+                    ])),
+
+                Tables\Actions\EditAction::make()
+                    ->label('Edit'),
+
+                Tables\Actions\DeleteAction::make()
+                    ->label('Hapus'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Hapus Terpilih'),
                 ]),
-            ]);
+            ])
+            ->emptyStateHeading('Belum ada pesanan')
+            ->emptyStateDescription('Pesanan pelanggan akan muncul di sini setelah dibuat.')
+            ->emptyStateIcon('heroicon-o-shopping-bag');
     }
 
     public static function getRelations(): array
