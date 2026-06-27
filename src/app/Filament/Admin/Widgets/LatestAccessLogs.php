@@ -18,35 +18,18 @@ class LatestAccessLogs extends BaseWidget
 
     protected int|string|array $columnSpan = 'full';
 
-    protected static ?string $heading = 'Aktivitas Terbaru';
+    protected static ?string $heading = '📝 Aktivitas Terbaru';
 
-    protected static ?string $description = 'Riwayat aktivitas terbaru yang terjadi pada dashboard admin.';
+    protected static ?string $description = 'Pantau aktivitas terbaru yang terjadi pada dashboard admin.';
 
     protected static function getLogNameColors(): array
     {
-        $customs = [];
-
-        foreach (config('filament-logger.custom') ?? [] as $custom) {
-            if (filled($custom['color'] ?? null)) {
-                $customs[$custom['color']] = $custom['log_name'];
-            }
-        }
-
-        return array_merge(
-            (config('filament-logger.resources.enabled') && config('filament-logger.resources.color')) ? [
-                config('filament-logger.resources.color') => config('filament-logger.resources.log_name'),
-            ] : [],
-            (config('filament-logger.models.enabled') && config('filament-logger.models.color')) ? [
-                config('filament-logger.models.color') => config('filament-logger.models.log_name'),
-            ] : [],
-            (config('filament-logger.access.enabled') && config('filament-logger.access.color')) ? [
-                config('filament-logger.access.color') => config('filament-logger.access.log_name'),
-            ] : [],
-            (config('filament-logger.notifications.enabled') && config('filament-logger.notifications.color')) ? [
-                config('filament-logger.notifications.color') => config('filament-logger.notifications.log_name'),
-            ] : [],
-            $customs,
-        );
+        return [
+            'primary' => 'resource',
+            'info' => 'access',
+            'warning' => 'model',
+            'success' => 'notification',
+        ];
     }
 
     public function table(Table $table): Table
@@ -54,17 +37,27 @@ class LatestAccessLogs extends BaseWidget
         return $table
             ->query(
                 Activity::query()
+                    ->with('causer')
                     ->latest()
-                    ->limit(5)
+                    ->limit(8)
             )
-            ->heading('Aktivitas Terbaru')
-            ->description('Pantau perubahan data, login, dan aktivitas penting terbaru.')
+            ->heading('📝 Aktivitas Terbaru')
+            ->description('Perubahan data, akses admin, dan aktivitas penting terbaru.')
             ->columns([
                 Tables\Columns\TextColumn::make('log_name')
                     ->label('Tipe')
                     ->badge()
-                    ->colors(static::getLogNameColors())
-                    ->formatStateUsing(fn (?string $state): string => $state ? Str::of($state)->headline()->toString() : '-')
+                    ->formatStateUsing(fn (?string $state): string => $state
+                        ? Str::of($state)->headline()->toString()
+                        : '-'
+                    )
+                    ->color(fn (?string $state): string => match ($state) {
+                        'resource' => 'primary',
+                        'access' => 'info',
+                        'model' => 'warning',
+                        'notification' => 'success',
+                        default => 'gray',
+                    })
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('event')
@@ -74,6 +67,7 @@ class LatestAccessLogs extends BaseWidget
                         'created' => 'Dibuat',
                         'updated' => 'Diubah',
                         'deleted' => 'Dihapus',
+                        'restored' => 'Dipulihkan',
                         'login' => 'Login',
                         'logout' => 'Logout',
                         default => $state ? Str::of($state)->headline()->toString() : '-',
@@ -82,7 +76,8 @@ class LatestAccessLogs extends BaseWidget
                         'created' => 'success',
                         'updated' => 'warning',
                         'deleted' => 'danger',
-                        'login' => 'info',
+                        'restored' => 'info',
+                        'login' => 'primary',
                         'logout' => 'gray',
                         default => 'gray',
                     })
@@ -91,11 +86,14 @@ class LatestAccessLogs extends BaseWidget
                 Tables\Columns\TextColumn::make('description')
                     ->label('Deskripsi')
                     ->wrap()
-                    ->limit(80)
-                    ->searchable(),
+                    ->limit(90)
+                    ->searchable()
+                    ->tooltip(fn (Activity $record): ?string => $record->description),
 
                 Tables\Columns\TextColumn::make('subject_type')
                     ->label('Data')
+                    ->badge()
+                    ->color('gray')
                     ->formatStateUsing(function ($state, Model $record): string {
                         /** @var Activity $record */
                         if (! $state) {
@@ -110,7 +108,8 @@ class LatestAccessLogs extends BaseWidget
                 Tables\Columns\TextColumn::make('causer.name')
                     ->label('User')
                     ->placeholder('Sistem')
-                    ->icon('heroicon-o-user'),
+                    ->icon('heroicon-s-user')
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Waktu')
@@ -118,6 +117,10 @@ class LatestAccessLogs extends BaseWidget
                     ->sortable()
                     ->since(),
             ])
-            ->paginated(false);
+            ->actions([])
+            ->paginated(false)
+            ->emptyStateHeading('Belum ada aktivitas')
+            ->emptyStateDescription('Aktivitas admin akan muncul di sini setelah ada perubahan data.')
+            ->emptyStateIcon('heroicon-o-document-text');
     }
 }

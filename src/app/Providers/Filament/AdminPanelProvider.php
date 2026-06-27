@@ -59,8 +59,9 @@ class AdminPanelProvider extends PanelProvider
             SambutanDashboard::class,
             StatistikDashboard::class,
             RingkasanPendapatan::class,
-            PesananTerbaru::class,
             PengambilanBesok::class,
+            PesananTerbaru::class,
+            LayananTerlaris::class,
             LatestAccessLogs::class,
             ])
             ->navigationGroups([
