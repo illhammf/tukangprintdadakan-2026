@@ -15,7 +15,7 @@ class KategoriLayananResource extends Resource
 {
     protected static ?string $model = KategoriLayanan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static ?string $navigationIcon = 'heroicon-s-squares-2x2';
 
     protected static ?string $navigationGroup = 'Master Data';
 
