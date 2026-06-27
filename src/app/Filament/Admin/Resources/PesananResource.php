@@ -9,6 +9,10 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Filament\Admin\Resources\PesananResource\RelationManagers\DetailPesanansRelationManager;
+use App\Filament\Admin\Resources\PesananResource\RelationManagers\PembayaranRelationManager;
+use App\Filament\Admin\Resources\PesananResource\RelationManagers\PengirimanRelationManager;
+use App\Filament\Admin\Resources\PesananResource\RelationManagers\RiwayatStatusPesanansRelationManager;
 
 class PesananResource extends Resource
 {
@@ -309,7 +313,10 @@ class PesananResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            DetailPesanansRelationManager::class,
+            PembayaranRelationManager::class,
+            PengirimanRelationManager::class,
+            RiwayatStatusPesanansRelationManager::class,
         ];
     }
 
