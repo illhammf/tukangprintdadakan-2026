@@ -14,7 +14,7 @@ class RiwayatStatusPesananResource extends Resource
 {
     protected static ?string $model = RiwayatStatusPesanan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clock';
+    protected static ?string $navigationIcon = 'heroicon-s-clock';
 
     protected static ?string $navigationGroup = 'Pemesanan';
 
