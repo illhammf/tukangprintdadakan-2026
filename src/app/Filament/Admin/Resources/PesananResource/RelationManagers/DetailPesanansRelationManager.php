@@ -8,6 +8,8 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 
 class DetailPesanansRelationManager extends RelationManager
 {
@@ -29,7 +31,21 @@ class DetailPesanansRelationManager extends RelationManager
                             ->label('Layanan')
                             ->options(Layanan::where('status', true)->pluck('nama_layanan', 'id'))
                             ->searchable()
-                            ->required(),
+                            ->live()
+                            ->required()
+                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                $layanan = Layanan::find($state);
+
+                                if (! $layanan) {
+                                    $set('harga_satuan', 0);
+                                    $set('subtotal', 0);
+                                    return;
+                                }
+
+                                $set('harga_satuan', $layanan->harga_dasar);
+
+                                self::hitungSubtotal($get, $set);
+                            }),
 
                         Forms\Components\TextInput::make('nama_file')
                             ->label('Nama File')
@@ -80,14 +96,18 @@ class DetailPesanansRelationManager extends RelationManager
                             ->numeric()
                             ->minValue(1)
                             ->default(1)
-                            ->required(),
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(fn (Get $get, Set $set) => self::hitungSubtotal($get, $set)),
 
                         Forms\Components\TextInput::make('jumlah_copy')
                             ->label('Jumlah Copy')
                             ->numeric()
                             ->minValue(1)
                             ->default(1)
-                            ->required(),
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(fn (Get $get, Set $set) => self::hitungSubtotal($get, $set)),
 
                         Forms\Components\Toggle::make('pakai_jilid')
                             ->label('Pakai Jilid')
@@ -106,12 +126,16 @@ class DetailPesanansRelationManager extends RelationManager
                             ->prefix('Rp')
                             ->numeric()
                             ->default(0)
-                            ->required(),
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(fn (Get $get, Set $set) => self::hitungSubtotal($get, $set)),
 
                         Forms\Components\TextInput::make('subtotal')
                             ->label('Subtotal')
                             ->prefix('Rp')
                             ->numeric()
+                            ->disabled()
+                            ->dehydrated()
                             ->default(0)
                             ->required(),
 
@@ -212,5 +236,14 @@ class DetailPesanansRelationManager extends RelationManager
             ->emptyStateHeading('Belum ada detail pesanan')
             ->emptyStateDescription('Tambahkan layanan, file, dan spesifikasi cetak untuk pesanan ini.')
             ->emptyStateIcon('heroicon-o-document-duplicate');
+    }
+
+    private static function hitungSubtotal(Get $get, Set $set): void
+    {
+        $hargaSatuan = (float) ($get('harga_satuan') ?? 0);
+        $jumlahHalaman = (int) ($get('jumlah_halaman') ?? 1);
+        $jumlahCopy = (int) ($get('jumlah_copy') ?? 1);
+
+        $set('subtotal', $hargaSatuan * $jumlahHalaman * $jumlahCopy);
     }
 }
