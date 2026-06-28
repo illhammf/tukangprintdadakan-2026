@@ -14,6 +14,8 @@ use App\Filament\Admin\Resources\PesananResource\RelationManagers\PembayaranRela
 use App\Filament\Admin\Resources\PesananResource\RelationManagers\PengirimanRelationManager;
 use App\Filament\Admin\Resources\PesananResource\RelationManagers\RiwayatStatusPesanansRelationManager;
 use Illuminate\Support\Str;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 
 class PesananResource extends Resource
 {
@@ -148,26 +150,55 @@ class PesananResource extends Resource
                             ->prefix('Rp')
                             ->numeric()
                             ->required()
-                            ->default(0),
+                            ->live()
+                            ->default(0)
+                            ->afterStateUpdated(function (Get $get, Set $set) {
+                                $set(
+                                    'total_harga',
+                                    ($get('subtotal') ?? 0)
+                                    + ($get('biaya_tambahan') ?? 0)
+                                    + ($get('biaya_pengiriman') ?? 0)
+                                );
+                            }),
 
                         Forms\Components\TextInput::make('biaya_tambahan')
                             ->label('Biaya Tambahan')
                             ->prefix('Rp')
                             ->numeric()
                             ->required()
-                            ->default(0),
+                            ->live()
+                            ->default(0)
+                            ->afterStateUpdated(function (Get $get, Set $set) {
+                                $set(
+                                    'total_harga',
+                                    ($get('subtotal') ?? 0)
+                                    + ($get('biaya_tambahan') ?? 0)
+                                    + ($get('biaya_pengiriman') ?? 0)
+                                );
+                            }),
 
                         Forms\Components\TextInput::make('biaya_pengiriman')
                             ->label('Biaya Pengiriman')
                             ->prefix('Rp')
                             ->numeric()
                             ->required()
-                            ->default(0),
+                            ->live()
+                            ->default(0)
+                            ->afterStateUpdated(function (Get $get, Set $set) {
+                                $set(
+                                    'total_harga',
+                                    ($get('subtotal') ?? 0)
+                                    + ($get('biaya_tambahan') ?? 0)
+                                    + ($get('biaya_pengiriman') ?? 0)
+                                );
+                            }),
 
                         Forms\Components\TextInput::make('total_harga')
                             ->label('Total Harga')
                             ->prefix('Rp')
                             ->numeric()
+                            ->disabled()
+                            ->dehydrated()
                             ->required()
                             ->default(0),
                     ])
