@@ -28,21 +28,19 @@ class DetailPesanansRelationManager extends RelationManager
                 Forms\Components\Section::make('Layanan dan File')
                     ->schema([
                         Forms\Components\Select::make('layanan_id')
-                            ->label('Layanan')
-                            ->options(Layanan::where('status', true)->pluck('nama_layanan', 'id'))
+                            ->label('Layanan Utama')
+                            ->options(
+                                Layanan::where('status', true)
+                                    ->whereIn('slug', ['print-hitam-putih', 'print-warna', 'fotokopi'])
+                                    ->pluck('nama_layanan', 'id')
+                            )
                             ->searchable()
                             ->live()
                             ->required()
                             ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                 $layanan = Layanan::find($state);
 
-                                if (! $layanan) {
-                                    $set('harga_satuan', 0);
-                                    $set('subtotal', 0);
-                                    return;
-                                }
-
-                                $set('harga_satuan', $layanan->harga_dasar);
+                                $set('harga_satuan', $layanan?->harga_dasar ?? 0);
 
                                 self::hitungSubtotal($get, $set);
                             }),
@@ -110,12 +108,16 @@ class DetailPesanansRelationManager extends RelationManager
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::hitungSubtotal($get, $set)),
 
                         Forms\Components\Toggle::make('pakai_jilid')
-                            ->label('Pakai Jilid')
-                            ->default(false),
+                            ->label('Pakai Jilid (+Rp5.000)')
+                            ->default(false)
+                            ->live()
+                            ->afterStateUpdated(fn (Get $get, Set $set) => self::hitungSubtotal($get, $set)),
 
                         Forms\Components\Toggle::make('pakai_laminating')
-                            ->label('Pakai Laminating')
-                            ->default(false),
+                            ->label('Pakai Laminating (+Rp5.000)')
+                            ->default(false)
+                            ->live()
+                            ->afterStateUpdated(fn (Get $get, Set $set) => self::hitungSubtotal($get, $set)),
                     ])
                     ->columns(3),
 
@@ -240,10 +242,15 @@ class DetailPesanansRelationManager extends RelationManager
 
     private static function hitungSubtotal(Get $get, Set $set): void
     {
-        $hargaSatuan = (float) ($get('harga_satuan') ?? 0);
-        $jumlahHalaman = (int) ($get('jumlah_halaman') ?? 1);
-        $jumlahCopy = (int) ($get('jumlah_copy') ?? 1);
+        $hargaSatuan = (float) ($get('harga_satuan') ?: 0);
+        $jumlahHalaman = (int) ($get('jumlah_halaman') ?: 1);
+        $jumlahCopy = (int) ($get('jumlah_copy') ?: 1);
 
-        $set('subtotal', $hargaSatuan * $jumlahHalaman * $jumlahCopy);
+        $biayaJilid = $get('pakai_jilid') ? 5000 : 0;
+        $biayaLaminating = $get('pakai_laminating') ? 5000 : 0;
+
+        $subtotal = ($hargaSatuan * $jumlahHalaman * $jumlahCopy) + $biayaJilid + $biayaLaminating;
+
+        $set('subtotal', $subtotal);
     }
 }

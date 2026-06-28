@@ -187,9 +187,9 @@ class PesananResource extends Resource
                             ->afterStateUpdated(function (Get $get, Set $set) {
                                 $set(
                                     'total_harga',
-                                    ($get('subtotal') ?? 0)
-                                    + ($get('biaya_tambahan') ?? 0)
-                                    + ($get('biaya_pengiriman') ?? 0)
+                                    (float) ($get('subtotal') ?: 0)
+                                    + (float) ($get('biaya_tambahan') ?: 0)
+                                    + (float) ($get('biaya_pengiriman') ?: 0)
                                 );
                             }),
 
