@@ -28,7 +28,6 @@ use App\Filament\Admin\Widgets\PesananTerbaru;
 use App\Filament\Admin\Widgets\RingkasanPendapatan;
 use App\Filament\Admin\Widgets\SambutanDashboard;
 use App\Filament\Admin\Widgets\StatistikDashboard;
-# use App\Filament\Admin\Widgets\QuickActionDashboard;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -58,8 +57,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
             ->widgets([
                 SambutanDashboard::class,
-
-                # QuickActionDashboard::class,
 
                 StatistikDashboard::class,
 

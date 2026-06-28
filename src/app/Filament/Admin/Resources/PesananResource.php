@@ -48,7 +48,7 @@ class PesananResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Informasi Pelanggan')
                     ->description('Data pelanggan yang membuat pesanan.')
-                    ->icon('heroicon-o-user')
+                    ->icon('heroicon-s-user')
                     ->schema([
                         Forms\Components\Select::make('user_id')
                             ->label('Akun Pelanggan')
@@ -75,7 +75,7 @@ class PesananResource extends Resource
 
                 Forms\Components\Section::make('Informasi Pesanan')
                     ->description('Data utama pesanan dan jadwal pengambilan.')
-                    ->icon('heroicon-o-document-text')
+                    ->icon('heroicon-s-document-text')
                     ->schema([
                         Forms\Components\TextInput::make('kode_pesanan')
                             ->label('Kode Pesanan')
@@ -138,7 +138,7 @@ class PesananResource extends Resource
 
                 Forms\Components\Section::make('Ringkasan Biaya')
                     ->description('Total biaya pesanan berdasarkan layanan dan biaya tambahan.')
-                    ->icon('heroicon-o-banknotes')
+                    ->icon('heroicon-s-banknotes')
                     ->schema([
                         Forms\Components\TextInput::make('subtotal')
                             ->label('Subtotal')
@@ -307,7 +307,7 @@ class PesananResource extends Resource
             ])
             ->emptyStateHeading('Belum ada pesanan')
             ->emptyStateDescription('Pesanan pelanggan akan muncul di sini setelah dibuat.')
-            ->emptyStateIcon('heroicon-o-shopping-bag');
+            ->emptyStateIcon('heroicon-s-shopping-bag');
     }
 
     public static function getRelations(): array
