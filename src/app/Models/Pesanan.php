@@ -62,4 +62,39 @@ class Pesanan extends Model
     {
         return $this->hasMany(RiwayatStatusPesanan::class);
     }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Pesanan $pesanan) {
+            if (blank($pesanan->kode_pesanan)) {
+                $tanggal = now()->format('Ymd');
+
+                $nomorUrut = Pesanan::whereDate('created_at', today())->count() + 1;
+
+                $pesanan->kode_pesanan = 'TPD-' . $tanggal . '-' . str_pad($nomorUrut, 4, '0', STR_PAD_LEFT);
+            }
+
+            if (blank($pesanan->tanggal_pesan)) {
+                $pesanan->tanggal_pesan = now();
+            }
+        });
+
+        static::created(function (Pesanan $pesanan) {
+            $pesanan->riwayatStatusPesanans()->create([
+                'status' => $pesanan->status_pesanan,
+                'catatan' => 'Pesanan berhasil dibuat.',
+                'waktu_status' => now(),
+            ]);
+        });
+
+        static::updated(function (Pesanan $pesanan) {
+            if ($pesanan->wasChanged('status_pesanan')) {
+                $pesanan->riwayatStatusPesanans()->create([
+                    'status' => $pesanan->status_pesanan,
+                    'catatan' => 'Status pesanan berubah menjadi ' . str_replace('_', ' ', $pesanan->status_pesanan) . '.',
+                    'waktu_status' => now(),
+                ]);
+            }
+        });
+    }
 }

@@ -13,6 +13,7 @@ use App\Filament\Admin\Resources\PesananResource\RelationManagers\DetailPesanans
 use App\Filament\Admin\Resources\PesananResource\RelationManagers\PembayaranRelationManager;
 use App\Filament\Admin\Resources\PesananResource\RelationManagers\PengirimanRelationManager;
 use App\Filament\Admin\Resources\PesananResource\RelationManagers\RiwayatStatusPesanansRelationManager;
+use Illuminate\Support\Str;
 
 class PesananResource extends Resource
 {
@@ -79,7 +80,9 @@ class PesananResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('kode_pesanan')
                             ->label('Kode Pesanan')
-                            ->placeholder('TPD-20260627-0001')
+                            ->default(fn () => 'TPD-' . now()->format('Ymd') . '-' . str_pad(\App\Models\Pesanan::whereDate('created_at', today())->count() + 1, 4, '0', STR_PAD_LEFT))
+                            ->disabled()
+                            ->dehydrated()
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
@@ -327,5 +330,40 @@ class PesananResource extends Resource
             'create' => Pages\CreatePesanan::route('/create'),
             'edit' => Pages\EditPesanan::route('/{record}/edit'),
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Pesanan $pesanan) {
+            if (blank($pesanan->kode_pesanan)) {
+                $tanggal = now()->format('Ymd');
+
+                $nomorUrut = Pesanan::whereDate('created_at', today())->count() + 1;
+
+                $pesanan->kode_pesanan = 'TPD-' . $tanggal . '-' . str_pad($nomorUrut, 4, '0', STR_PAD_LEFT);
+            }
+
+            if (blank($pesanan->tanggal_pesan)) {
+                $pesanan->tanggal_pesan = now();
+            }
+        });
+
+        static::created(function (Pesanan $pesanan) {
+            $pesanan->riwayatStatusPesanans()->create([
+                'status' => $pesanan->status_pesanan,
+                'catatan' => 'Pesanan berhasil dibuat.',
+                'waktu_status' => now(),
+            ]);
+        });
+
+        static::updated(function (Pesanan $pesanan) {
+            if ($pesanan->wasChanged('status_pesanan')) {
+                $pesanan->riwayatStatusPesanans()->create([
+                    'status' => $pesanan->status_pesanan,
+                    'catatan' => 'Status pesanan berubah menjadi ' . str_replace('_', ' ', $pesanan->status_pesanan) . '.',
+                    'waktu_status' => now(),
+                ]);
+            }
+        });
     }
 }
