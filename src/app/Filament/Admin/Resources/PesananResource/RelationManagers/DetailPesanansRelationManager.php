@@ -5,11 +5,11 @@ namespace App\Filament\Admin\Resources\PesananResource\RelationManagers;
 use App\Models\Layanan;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 
 class DetailPesanansRelationManager extends RelationManager
 {
@@ -31,7 +31,7 @@ class DetailPesanansRelationManager extends RelationManager
                             ->label('Layanan Utama')
                             ->options(
                                 Layanan::where('status', true)
-                                    ->whereIn('slug', ['print-hitam-putih', 'print-warna', 'fotokopi'])
+                                    ->whereIn('slug', ['print-dokumen', 'fotokopi'])
                                     ->pluck('nama_layanan', 'id')
                             )
                             ->searchable()
@@ -40,8 +40,11 @@ class DetailPesanansRelationManager extends RelationManager
                             ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                 $layanan = Layanan::find($state);
 
-                                $set('harga_satuan', $layanan?->harga_dasar ?? 0);
+                                if ($layanan?->slug === 'fotokopi') {
+                                    $set('jenis_print', null);
+                                }
 
+                                self::aturHargaSatuan($get, $set);
                                 self::hitungSubtotal($get, $set);
                             }),
 
@@ -78,7 +81,14 @@ class DetailPesanansRelationManager extends RelationManager
                                 'hitam_putih' => 'Hitam Putih',
                                 'warna' => 'Warna',
                             ])
-                            ->native(false),
+                            ->native(false)
+                            ->live()
+                            ->visible(fn (Get $get): bool => self::layananSlug($get('layanan_id')) === 'print-dokumen')
+                            ->required(fn (Get $get): bool => self::layananSlug($get('layanan_id')) === 'print-dokumen')
+                            ->afterStateUpdated(function (Get $get, Set $set) {
+                                self::aturHargaSatuan($get, $set);
+                                self::hitungSubtotal($get, $set);
+                            }),
 
                         Forms\Components\Select::make('ukuran_kertas')
                             ->label('Ukuran Kertas')
@@ -127,10 +137,10 @@ class DetailPesanansRelationManager extends RelationManager
                             ->label('Harga Satuan')
                             ->prefix('Rp')
                             ->numeric()
+                            ->disabled()
+                            ->dehydrated()
                             ->default(0)
-                            ->required()
-                            ->live()
-                            ->afterStateUpdated(fn (Get $get, Set $set) => self::hitungSubtotal($get, $set)),
+                            ->required(),
 
                         Forms\Components\TextInput::make('subtotal')
                             ->label('Subtotal')
@@ -211,14 +221,6 @@ class DetailPesanansRelationManager extends RelationManager
                     ->label('Laminating')
                     ->boolean(),
             ])
-            ->filters([
-                Tables\Filters\SelectFilter::make('jenis_print')
-                    ->label('Jenis Print')
-                    ->options([
-                        'hitam_putih' => 'Hitam Putih',
-                        'warna' => 'Warna',
-                    ]),
-            ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->label('Tambah Detail'),
@@ -234,10 +236,34 @@ class DetailPesanansRelationManager extends RelationManager
                     Tables\Actions\DeleteBulkAction::make()
                         ->label('Hapus Terpilih'),
                 ]),
-            ])
-            ->emptyStateHeading('Belum ada detail pesanan')
-            ->emptyStateDescription('Tambahkan layanan, file, dan spesifikasi cetak untuk pesanan ini.')
-            ->emptyStateIcon('heroicon-o-document-duplicate');
+            ]);
+    }
+
+    private static function layananSlug($layananId): ?string
+    {
+        return Layanan::find($layananId)?->slug;
+    }
+
+    private static function aturHargaSatuan(Get $get, Set $set): void
+    {
+        $layanan = Layanan::find($get('layanan_id'));
+
+        if (! $layanan) {
+            $set('harga_satuan', 0);
+            return;
+        }
+
+        if ($layanan->slug === 'print-dokumen') {
+            $harga = match ($get('jenis_print')) {
+                'warna' => 900,
+                default => 500,
+            };
+
+            $set('harga_satuan', $harga);
+            return;
+        }
+
+        $set('harga_satuan', (float) $layanan->harga_dasar);
     }
 
     private static function hitungSubtotal(Get $get, Set $set): void
