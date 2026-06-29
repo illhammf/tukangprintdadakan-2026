@@ -262,8 +262,8 @@ class PesananResource extends Resource
     {
         return [
             DetailPesanansRelationManager::class,
-            PembayaranRelationManager::class,
             PengirimanRelationManager::class,
+            PembayaranRelationManager::class,
             RiwayatStatusPesanansRelationManager::class,
         ];
     }
