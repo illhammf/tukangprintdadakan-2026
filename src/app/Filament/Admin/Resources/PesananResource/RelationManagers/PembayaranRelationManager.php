@@ -49,7 +49,9 @@ class PembayaranRelationManager extends RelationManager
                             ->label('Jumlah Bayar')
                             ->prefix('Rp')
                             ->numeric()
-                            ->required(),
+                            ->disabled()
+                            ->dehydrated()
+                            ->default(fn ($livewire) => $livewire->ownerRecord->total_harga),
 
                         Forms\Components\Select::make('status_pembayaran')
                             ->label('Status Pembayaran')

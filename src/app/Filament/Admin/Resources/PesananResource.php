@@ -149,17 +149,8 @@ class PesananResource extends Resource
                             ->label('Subtotal')
                             ->prefix('Rp')
                             ->numeric()
-                            ->required()
-                            ->live()
-                            ->default(0)
-                            ->afterStateUpdated(function (Get $get, Set $set) {
-                                $set(
-                                    'total_harga',
-                                    ($get('subtotal') ?? 0)
-                                    + ($get('biaya_tambahan') ?? 0)
-                                    + ($get('biaya_pengiriman') ?? 0)
-                                );
-                            }),
+                            ->disabled()
+                            ->dehydrated(),
 
                         Forms\Components\TextInput::make('biaya_tambahan')
                             ->label('Biaya Tambahan')

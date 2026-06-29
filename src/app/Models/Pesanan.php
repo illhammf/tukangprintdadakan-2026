@@ -69,10 +69,18 @@ class Pesanan extends Model
         $biayaTambahan = (float) ($this->biaya_tambahan ?? 0);
         $biayaPengiriman = (float) ($this->biaya_pengiriman ?? 0);
 
+        $totalHarga = $subtotal + $biayaTambahan + $biayaPengiriman;
+
         $this->forceFill([
             'subtotal' => $subtotal,
-            'total_harga' => $subtotal + $biayaTambahan + $biayaPengiriman,
+            'total_harga' => $totalHarga,
         ])->saveQuietly();
+
+        if ($this->pembayaran) {
+            $this->pembayaran()->update([
+                'jumlah_bayar' => $totalHarga,
+            ]);
+        }
     }
 
     protected static function booted(): void
