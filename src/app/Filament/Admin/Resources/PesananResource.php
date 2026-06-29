@@ -132,48 +132,6 @@ class PesananResource extends Resource
                             ->columnSpanFull(),
                     ])
                     ->columns(3),
-
-                Forms\Components\Section::make('Ringkasan Biaya')
-                    ->description('Total biaya pesanan berdasarkan detail layanan dan biaya tambahan.')
-                    ->icon('heroicon-o-banknotes')
-                    ->schema([
-                        Forms\Components\TextInput::make('subtotal')
-                            ->label('Subtotal')
-                            ->prefix('Rp')
-                            ->numeric()
-                            ->disabled()
-                            ->dehydrated()
-                            ->default(0)
-                            ->required(),
-
-                        Forms\Components\TextInput::make('biaya_tambahan')
-                            ->label('Biaya Tambahan')
-                            ->prefix('Rp')
-                            ->numeric()
-                            ->default(0)
-                            ->required()
-                            ->live()
-                            ->afterStateUpdated(fn (Get $get, Set $set) => self::hitungTotal($get, $set)),
-
-                        Forms\Components\TextInput::make('biaya_pengiriman')
-                            ->label('Biaya Pengiriman')
-                            ->prefix('Rp')
-                            ->numeric()
-                            ->default(0)
-                            ->required()
-                            ->live()
-                            ->afterStateUpdated(fn (Get $get, Set $set) => self::hitungTotal($get, $set)),
-
-                        Forms\Components\TextInput::make('total_harga')
-                            ->label('Total Harga')
-                            ->prefix('Rp')
-                            ->numeric()
-                            ->disabled()
-                            ->dehydrated()
-                            ->default(0)
-                            ->required(),
-                    ])
-                    ->columns(4),
             ]);
     }
 

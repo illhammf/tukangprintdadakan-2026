@@ -105,15 +105,42 @@ class Pesanan extends Model
                 'catatan' => 'Pesanan berhasil dibuat.',
                 'waktu_status' => now(),
             ]);
+
+            $pesanan->pengiriman()->create([
+                'metode_pengiriman' => match ($pesanan->lokasi_pengambilan) {
+                    'Ojek Online' => 'ojek_online',
+                    'Diantar' => 'antar',
+                    default => 'ambil_di_kampus',
+                },
+                'biaya_pengiriman' => match ($pesanan->lokasi_pengambilan) {
+                    'Diantar' => 5000,
+                    default => 0,
+                },
+                'status_pengiriman' => 'belum_dikirim',
+            ]);
+
+            $pesanan->updateRingkasanBiaya();
         });
 
         static::updated(function (Pesanan $pesanan) {
-            if ($pesanan->wasChanged('status_pesanan')) {
-                $pesanan->riwayatStatusPesanans()->create([
-                    'status' => $pesanan->status_pesanan,
-                    'catatan' => 'Status pesanan berubah menjadi ' . str_replace('_', ' ', $pesanan->status_pesanan) . '.',
-                    'waktu_status' => now(),
-                ]);
+            if ($pesanan->wasChanged('lokasi_pengambilan')) {
+                $pesanan->pengiriman()->updateOrCreate(
+                    ['pesanan_id' => $pesanan->id],
+                    [
+                        'metode_pengiriman' => match ($pesanan->lokasi_pengambilan) {
+                            'Ojek Online' => 'ojek_online',
+                            'Diantar' => 'antar',
+                            default => 'ambil_di_kampus',
+                        },
+                        'biaya_pengiriman' => match ($pesanan->lokasi_pengambilan) {
+                            'Diantar' => 5000,
+                            default => 0,
+                        },
+                        'status_pengiriman' => 'belum_dikirim',
+                    ]
+                );
+
+                $pesanan->updateRingkasanBiaya();
             }
         });
     }
