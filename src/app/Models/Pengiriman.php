@@ -26,4 +26,31 @@ class Pengiriman extends Model
     {
         return $this->belongsTo(Pesanan::class);
     }
+
+    protected static function booted(): void
+    {
+        static::saved(function (Pengiriman $pengiriman) {
+            $pesanan = $pengiriman->pesanan;
+
+            if ($pesanan) {
+                $pesanan->forceFill([
+                    'biaya_pengiriman' => $pengiriman->biaya_pengiriman ?? 0,
+                ])->saveQuietly();
+
+                $pesanan->updateRingkasanBiaya();
+            }
+        });
+
+        static::deleted(function (Pengiriman $pengiriman) {
+            $pesanan = $pengiriman->pesanan;
+
+            if ($pesanan) {
+                $pesanan->forceFill([
+                    'biaya_pengiriman' => 0,
+                ])->saveQuietly();
+
+                $pesanan->updateRingkasanBiaya();
+            }
+        });
+    }
 }
