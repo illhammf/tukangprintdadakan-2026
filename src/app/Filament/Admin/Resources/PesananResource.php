@@ -3,46 +3,37 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\PesananResource\Pages;
-use App\Models\Pesanan;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
 use App\Filament\Admin\Resources\PesananResource\RelationManagers\DetailPesanansRelationManager;
 use App\Filament\Admin\Resources\PesananResource\RelationManagers\PembayaranRelationManager;
 use App\Filament\Admin\Resources\PesananResource\RelationManagers\PengirimanRelationManager;
 use App\Filament\Admin\Resources\PesananResource\RelationManagers\RiwayatStatusPesanansRelationManager;
-use Illuminate\Support\Str;
+use App\Models\Pesanan;
+use Filament\Forms;
+use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
 
 class PesananResource extends Resource
 {
     protected static ?string $model = Pesanan::class;
 
-    protected static ?string $navigationIcon = 'heroicon-s-shopping-bag';
-
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
     protected static ?string $navigationGroup = 'Pemesanan';
-
     protected static ?string $navigationLabel = 'Pesanan';
-
     protected static ?string $modelLabel = 'Pesanan';
-
     protected static ?string $pluralModelLabel = 'Pesanan';
-
     protected static ?int $navigationSort = 1;
 
-    public static function getNavigationBadge(): ?string
+    private static function hitungTotal(Get $get, Set $set): void
     {
-        $count = Pesanan::where('status_pesanan', 'menunggu_verifikasi')->count();
+        $subtotal = (float) ($get('subtotal') ?: 0);
+        $biayaTambahan = (float) ($get('biaya_tambahan') ?: 0);
+        $biayaPengiriman = (float) ($get('biaya_pengiriman') ?: 0);
 
-        return $count > 0 ? (string) $count : null;
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'warning';
+        $set('total_harga', $subtotal + $biayaTambahan + $biayaPengiriman);
     }
 
     public static function form(Form $form): Form
@@ -51,13 +42,14 @@ class PesananResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Informasi Pelanggan')
                     ->description('Data pelanggan yang membuat pesanan.')
-                    ->icon('heroicon-s-user')
+                    ->icon('heroicon-o-user')
                     ->schema([
                         Forms\Components\Select::make('user_id')
                             ->label('Akun Pelanggan')
                             ->relationship('user', 'name')
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->nullable(),
 
                         Forms\Components\TextInput::make('nama_pelanggan')
                             ->label('Nama Pelanggan')
@@ -78,11 +70,11 @@ class PesananResource extends Resource
 
                 Forms\Components\Section::make('Informasi Pesanan')
                     ->description('Data utama pesanan dan jadwal pengambilan.')
-                    ->icon('heroicon-s-document-text')
+                    ->icon('heroicon-o-document-text')
                     ->schema([
                         Forms\Components\TextInput::make('kode_pesanan')
                             ->label('Kode Pesanan')
-                            ->default(fn () => 'TPD-' . now()->format('Ymd') . '-' . str_pad(\App\Models\Pesanan::whereDate('created_at', today())->count() + 1, 4, '0', STR_PAD_LEFT))
+                            ->default(fn () => 'TPD-' . now()->format('Ymd') . '-' . str_pad(Pesanan::whereDate('created_at', today())->count() + 1, 4, '0', STR_PAD_LEFT))
                             ->disabled()
                             ->dehydrated()
                             ->required()
@@ -91,29 +83,28 @@ class PesananResource extends Resource
 
                         Forms\Components\DatePicker::make('tanggal_pesan')
                             ->label('Tanggal Pesan')
-                            ->native(false)
-                            ->displayFormat('d M Y')
-                            ->required()
-                            ->default(now()),
+                            ->default(today())
+                            ->required(),
 
                         Forms\Components\DatePicker::make('tanggal_pengambilan')
                             ->label('Tanggal Pengambilan')
-                            ->native(false)
-                            ->displayFormat('d M Y'),
+                            ->minDate(today())
+                            ->required(),
 
                         Forms\Components\TimePicker::make('jam_pengambilan')
                             ->label('Jam Pengambilan')
-                            ->seconds(false),
+                            ->seconds(false)
+                            ->required(),
 
                         Forms\Components\Select::make('lokasi_pengambilan')
                             ->label('Lokasi Pengambilan')
                             ->options([
                                 'Kampus UEU Tangerang' => 'Kampus UEU Tangerang',
-                                'Diantar' => 'Diantar',
                                 'Ojek Online' => 'Ojek Online',
-                                'Lainnya' => 'Lainnya',
+                                'Diantar' => 'Diantar',
                             ])
-                            ->searchable(),
+                            ->native(false)
+                            ->required(),
 
                         Forms\Components\Select::make('status_pesanan')
                             ->label('Status Pesanan')
@@ -125,6 +116,7 @@ class PesananResource extends Resource
                                 'dibatalkan' => 'Dibatalkan',
                             ])
                             ->default('menunggu_verifikasi')
+                            ->native(false)
                             ->required(),
 
                         Forms\Components\Textarea::make('detail_lokasi')
@@ -142,47 +134,35 @@ class PesananResource extends Resource
                     ->columns(3),
 
                 Forms\Components\Section::make('Ringkasan Biaya')
-                    ->description('Total biaya pesanan berdasarkan layanan dan biaya tambahan.')
-                    ->icon('heroicon-s-banknotes')
+                    ->description('Total biaya pesanan berdasarkan detail layanan dan biaya tambahan.')
+                    ->icon('heroicon-o-banknotes')
                     ->schema([
                         Forms\Components\TextInput::make('subtotal')
                             ->label('Subtotal')
                             ->prefix('Rp')
                             ->numeric()
                             ->disabled()
-                            ->dehydrated(),
+                            ->dehydrated()
+                            ->default(0)
+                            ->required(),
 
                         Forms\Components\TextInput::make('biaya_tambahan')
                             ->label('Biaya Tambahan')
                             ->prefix('Rp')
                             ->numeric()
+                            ->default(0)
                             ->required()
                             ->live()
-                            ->default(0)
-                            ->afterStateUpdated(function (Get $get, Set $set) {
-                                $set(
-                                    'total_harga',
-                                    ($get('subtotal') ?? 0)
-                                    + ($get('biaya_tambahan') ?? 0)
-                                    + ($get('biaya_pengiriman') ?? 0)
-                                );
-                            }),
+                            ->afterStateUpdated(fn (Get $get, Set $set) => self::hitungTotal($get, $set)),
 
                         Forms\Components\TextInput::make('biaya_pengiriman')
                             ->label('Biaya Pengiriman')
                             ->prefix('Rp')
                             ->numeric()
+                            ->default(0)
                             ->required()
                             ->live()
-                            ->default(0)
-                            ->afterStateUpdated(function (Get $get, Set $set) {
-                                $set(
-                                    'total_harga',
-                                    (float) ($get('subtotal') ?: 0)
-                                    + (float) ($get('biaya_tambahan') ?: 0)
-                                    + (float) ($get('biaya_pengiriman') ?: 0)
-                                );
-                            }),
+                            ->afterStateUpdated(fn (Get $get, Set $set) => self::hitungTotal($get, $set)),
 
                         Forms\Components\TextInput::make('total_harga')
                             ->label('Total Harga')
@@ -190,8 +170,8 @@ class PesananResource extends Resource
                             ->numeric()
                             ->disabled()
                             ->dehydrated()
-                            ->required()
-                            ->default(0),
+                            ->default(0)
+                            ->required(),
                     ])
                     ->columns(4),
             ]);
@@ -204,24 +184,20 @@ class PesananResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('kode_pesanan')
                     ->label('Kode')
-                    ->searchable()
-                    ->sortable()
-                    ->copyable()
-                    ->weight('bold')
                     ->badge()
-                    ->color('gray'),
+                    ->copyable()
+                    ->searchable()
+                    ->sortable(),
 
                 Tables\Columns\TextColumn::make('nama_pelanggan')
                     ->label('Pelanggan')
                     ->searchable()
-                    ->sortable()
                     ->description(fn (Pesanan $record): ?string => $record->nomor_whatsapp),
 
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Akun')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(),
+                    ->placeholder('Guest')
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('tanggal_pengambilan')
                     ->label('Ambil')
@@ -229,12 +205,13 @@ class PesananResource extends Resource
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('jam_pengambilan')
-                    ->label('Jam'),
+                    ->label('Jam')
+                    ->time('H:i'),
 
                 Tables\Columns\TextColumn::make('lokasi_pengambilan')
                     ->label('Lokasi')
-                    ->searchable()
-                    ->toggleable(),
+                    ->limit(25)
+                    ->searchable(),
 
                 Tables\Columns\TextColumn::make('total_harga')
                     ->label('Total')
@@ -263,61 +240,10 @@ class PesananResource extends Resource
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')
-                    ->dateTime('d M Y H:i')
-                    ->sortable()
-                    ->since(),
-            ])
-            ->filters([
-                Tables\Filters\SelectFilter::make('status_pesanan')
-                    ->label('Status Pesanan')
-                    ->options([
-                        'menunggu_verifikasi' => 'Menunggu Verifikasi',
-                        'diproses' => 'Diproses',
-                        'siap_diambil' => 'Siap Diambil',
-                        'selesai' => 'Selesai',
-                        'dibatalkan' => 'Dibatalkan',
-                    ]),
-
-                Tables\Filters\SelectFilter::make('lokasi_pengambilan')
-                    ->label('Lokasi Pengambilan')
-                    ->options([
-                        'Kampus UEU Tangerang' => 'Kampus UEU Tangerang',
-                        'Diantar' => 'Diantar',
-                        'Ojek Online' => 'Ojek Online',
-                        'Lainnya' => 'Lainnya',
-                    ]),
+                    ->since()
+                    ->sortable(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->label('Lihat'),
-
-                Tables\Actions\Action::make('verifikasi')
-                    ->label('Verifikasi')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->visible(fn (Pesanan $record): bool => $record->status_pesanan === 'menunggu_verifikasi')
-                    ->action(fn (Pesanan $record) => $record->update([
-                        'status_pesanan' => 'diproses',
-                    ])),
-
-                Tables\Actions\Action::make('siap_diambil')
-                    ->label('Siap Diambil')
-                    ->icon('heroicon-o-archive-box')
-                    ->color('info')
-                    ->visible(fn (Pesanan $record): bool => $record->status_pesanan === 'diproses')
-                    ->action(fn (Pesanan $record) => $record->update([
-                        'status_pesanan' => 'siap_diambil',
-                    ])),
-
-                Tables\Actions\Action::make('selesai')
-                    ->label('Selesai')
-                    ->icon('heroicon-o-check-badge')
-                    ->color('gray')
-                    ->visible(fn (Pesanan $record): bool => $record->status_pesanan === 'siap_diambil')
-                    ->action(fn (Pesanan $record) => $record->update([
-                        'status_pesanan' => 'selesai',
-                    ])),
-
                 Tables\Actions\EditAction::make()
                     ->label('Edit'),
 
@@ -329,10 +255,7 @@ class PesananResource extends Resource
                     Tables\Actions\DeleteBulkAction::make()
                         ->label('Hapus Terpilih'),
                 ]),
-            ])
-            ->emptyStateHeading('Belum ada pesanan')
-            ->emptyStateDescription('Pesanan pelanggan akan muncul di sini setelah dibuat.')
-            ->emptyStateIcon('heroicon-s-shopping-bag');
+            ]);
     }
 
     public static function getRelations(): array
@@ -352,40 +275,5 @@ class PesananResource extends Resource
             'create' => Pages\CreatePesanan::route('/create'),
             'edit' => Pages\EditPesanan::route('/{record}/edit'),
         ];
-    }
-
-    protected static function booted(): void
-    {
-        static::creating(function (Pesanan $pesanan) {
-            if (blank($pesanan->kode_pesanan)) {
-                $tanggal = now()->format('Ymd');
-
-                $nomorUrut = Pesanan::whereDate('created_at', today())->count() + 1;
-
-                $pesanan->kode_pesanan = 'TPD-' . $tanggal . '-' . str_pad($nomorUrut, 4, '0', STR_PAD_LEFT);
-            }
-
-            if (blank($pesanan->tanggal_pesan)) {
-                $pesanan->tanggal_pesan = now();
-            }
-        });
-
-        static::created(function (Pesanan $pesanan) {
-            $pesanan->riwayatStatusPesanans()->create([
-                'status' => $pesanan->status_pesanan,
-                'catatan' => 'Pesanan berhasil dibuat.',
-                'waktu_status' => now(),
-            ]);
-        });
-
-        static::updated(function (Pesanan $pesanan) {
-            if ($pesanan->wasChanged('status_pesanan')) {
-                $pesanan->riwayatStatusPesanans()->create([
-                    'status' => $pesanan->status_pesanan,
-                    'catatan' => 'Status pesanan berubah menjadi ' . str_replace('_', ' ', $pesanan->status_pesanan) . '.',
-                    'waktu_status' => now(),
-                ]);
-            }
-        });
     }
 }
