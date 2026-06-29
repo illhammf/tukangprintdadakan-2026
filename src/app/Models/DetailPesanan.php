@@ -30,6 +30,17 @@ class DetailPesanan extends Model
         'pakai_laminating' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::saved(function (DetailPesanan $detailPesanan) {
+            $detailPesanan->pesanan?->updateRingkasanBiaya();
+        });
+
+        static::deleted(function (DetailPesanan $detailPesanan) {
+            $detailPesanan->pesanan?->updateRingkasanBiaya();
+        });
+    }
+
     public function pesanan(): BelongsTo
     {
         return $this->belongsTo(Pesanan::class);
