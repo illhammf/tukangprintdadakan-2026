@@ -7,6 +7,7 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms\Set;
 
 class PengirimanRelationManager extends RelationManager
 {
@@ -35,7 +36,16 @@ class PengirimanRelationManager extends RelationManager
                             ])
                             ->default('ambil_di_kampus')
                             ->native(false)
-                            ->required(),
+                            ->live()
+                            ->required()
+                            ->afterStateUpdated(function ($state, Set $set) {
+                                $set('biaya_pengiriman', match ($state) {
+                                    'ambil_di_kampus' => 0,
+                                    'antar' => 5000,
+                                    'ojek_online' => 0,
+                                    default => 0,
+                                });
+                            }),
 
                         Forms\Components\TextInput::make('biaya_pengiriman')
                             ->label('Biaya Pengiriman')
