@@ -63,6 +63,18 @@ class Pesanan extends Model
         return $this->hasMany(RiwayatStatusPesanan::class);
     }
 
+    public function updateRingkasanBiaya(): void
+    {
+        $subtotal = (float) $this->detailPesanans()->sum('subtotal');
+        $biayaTambahan = (float) ($this->biaya_tambahan ?? 0);
+        $biayaPengiriman = (float) ($this->biaya_pengiriman ?? 0);
+
+        $this->forceFill([
+            'subtotal' => $subtotal,
+            'total_harga' => $subtotal + $biayaTambahan + $biayaPengiriman,
+        ])->saveQuietly();
+    }
+
     protected static function booted(): void
     {
         static::creating(function (Pesanan $pesanan) {
