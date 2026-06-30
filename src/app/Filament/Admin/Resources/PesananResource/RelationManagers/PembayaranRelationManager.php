@@ -7,6 +7,7 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
 
 class PembayaranRelationManager extends RelationManager
 {
@@ -147,6 +148,23 @@ class PembayaranRelationManager extends RelationManager
                     ->label('Tambah Pembayaran'),
             ])
             ->actions([
+                Tables\Actions\Action::make('tandai_lunas')
+                    ->label('Tandai Lunas')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn ($record): bool => $record->status_pembayaran !== 'lunas')
+                    ->action(function ($record) {
+                        $record->update([
+                            'status_pembayaran' => 'lunas',
+                            'tanggal_bayar' => now(),
+                        ]);
+
+                        Notification::make()
+                            ->title('Pembayaran ditandai lunas')
+                            ->success()
+                            ->send();
+                    }),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
