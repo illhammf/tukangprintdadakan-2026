@@ -83,6 +83,23 @@ class Pesanan extends Model
         }
     }
 
+    public function ubahStatus(string $status, ?string $catatan = null): void
+    {
+        if ($this->status_pesanan === $status) {
+            return;
+        }
+
+        $this->forceFill([
+            'status_pesanan' => $status,
+        ])->saveQuietly();
+
+        $this->riwayatStatusPesanans()->create([
+            'status' => $status,
+            'catatan' => $catatan ?? 'Status pesanan berubah menjadi ' . str_replace('_', ' ', $status) . '.',
+            'waktu_status' => now(),
+        ]);
+    }
+
     protected static function booted(): void
     {
         static::creating(function (Pesanan $pesanan) {
