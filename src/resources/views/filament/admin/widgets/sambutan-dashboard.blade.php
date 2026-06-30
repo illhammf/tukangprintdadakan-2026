@@ -31,7 +31,7 @@
 
                 <p class="text-gray-500">
 
-                    Semoga harimu menyenangkan 😊
+                    Semoga harimu menyenangkan 
                     <br>
                     ----------------------------------------------
                     <br>

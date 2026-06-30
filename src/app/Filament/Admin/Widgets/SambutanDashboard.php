@@ -35,7 +35,9 @@ class SambutanDashboard extends Widget
 
             'greeting' => $greeting,
 
-            'tanggal' => Carbon::now()->translatedFormat('l, d F Y'),
+            'tanggal' => now()
+                ->locale('id')
+                ->translatedFormat('l, d F Y'),
 
             'jam' => Carbon::now()->format('H:i'),
 
