@@ -52,7 +52,8 @@ class PengirimanRelationManager extends RelationManager
                             ->prefix('Rp')
                             ->numeric()
                             ->default(0)
-                            ->required(),
+                            ->required()
+                            ->live(),
 
                         Forms\Components\Select::make('status_pengiriman')
                             ->label('Status Pengiriman')
