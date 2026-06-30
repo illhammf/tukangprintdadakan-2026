@@ -14,13 +14,9 @@
                 </h2>
 
                 <p class="mt-2 text-gray-500">
-
-                    {{ $tanggal }}
-
-                    •
-
-                    {{ $jam }} WIB
-
+                    📅 {{ $tanggal }}
+                    <br>
+                    🕒 Pukul {{ $jam }} WIB
                 </p>
 
                 <p class="mt-5 text-xl font-semibold">
@@ -29,19 +25,27 @@
 
                 </p>
 
-                <p class="text-gray-500">
-
+                <p class="text-gray-500 mt-2">
                     Semoga harimu menyenangkan 
-                    <br>
-                    ----------------------------------------------
-                    <br>
-
                 </p>
 
+                <div class="border-b border-dashed border-gray-300 my-5"></div>
+                <br>
             </div>
 
-            <div class="hidden lg:block">
-                <img src="{{ asset('images/placeholder.png') }}" class="h-32 w-32 rounded-2xl object-cover" alt="Tukang Print Dadakan">
+            <div class="hidden lg:flex items-center justify-center">
+
+                @if($logo)
+                    <img
+                        src="{{ Storage::url($logo) }}"
+                        style="width:130px;height:130px;object-fit:contain;"
+                        alt="{{ $namaWebsite }}">
+                @else
+                    <img
+                        src="{{ asset('images/placeholder.png') }}"
+                        class="w-28 h-28 object-contain">
+                @endif
+
             </div>
 
         </div>

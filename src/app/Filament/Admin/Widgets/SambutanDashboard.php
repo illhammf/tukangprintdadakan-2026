@@ -6,6 +6,8 @@ use App\Models\Pembayaran;
 use App\Models\Pesanan;
 use Carbon\Carbon; // Untuk mendapatkan tanggal dan waktu saat ini
 use Filament\Widgets\Widget;
+use App\Models\PengaturanWebsite;
+use Illuminate\Support\Facades\Storage;
 
 class SambutanDashboard extends Widget
 {
@@ -28,10 +30,15 @@ class SambutanDashboard extends Widget
         } else {
             $greeting = 'Selamat Malam 🌙';
         }
+        $website = PengaturanWebsite::first();
 
         return [
 
             'nama' => auth()->user()->name,
+
+            'namaWebsite' => $website?->nama_website,
+
+            'logo' => $website?->logo,
 
             'greeting' => $greeting,
 
@@ -39,7 +46,7 @@ class SambutanDashboard extends Widget
                 ->locale('id')
                 ->translatedFormat('l, d F Y'),
 
-            'jam' => Carbon::now()->format('H:i'),
+            'jam' => now()->format('H.i'),
 
             'pesananHariIni' => Pesanan::whereDate(
                 'created_at',
