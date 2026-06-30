@@ -122,7 +122,7 @@ class PembayaranRelationManager extends RelationManager
                     ->label('Status')
                     ->badge()
                     ->formatStateUsing(fn($state) => match ($state) {
-                        'menunggu' => 'Menunggu',
+                        'menunggu_pembayaran' => 'Menunggu Pembayaran',
                         'menunggu_verifikasi' => 'Verifikasi',
                         'lunas' => 'Lunas',
                         'gagal' => 'Gagal',
