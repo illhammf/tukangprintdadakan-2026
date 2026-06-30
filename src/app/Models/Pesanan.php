@@ -89,6 +89,10 @@ class Pesanan extends Model
             return;
         }
 
+        if ($status === 'selesai' && $this->pembayaran?->status_pembayaran !== 'lunas') {
+            throw new \Exception('Pesanan belum bisa diselesaikan karena pembayaran belum lunas.');
+        }
+
         $this->forceFill([
             'status_pesanan' => $status,
         ])->saveQuietly();
