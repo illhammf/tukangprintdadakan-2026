@@ -207,6 +207,50 @@ class PesananResource extends Resource
                     ->sortable(),
             ])
             ->actions([
+                Tables\Actions\Action::make('verifikasi')
+                    ->label('Verifikasi')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn (Pesanan $record): bool => $record->status_pesanan === 'menunggu_verifikasi')
+                    ->action(fn (Pesanan $record) => $record->ubahStatus(
+                        'diproses',
+                        'Pesanan sudah diverifikasi dan masuk tahap diproses.'
+                    )),
+
+                Tables\Actions\Action::make('siap_diambil')
+                    ->label('Siap Diambil')
+                    ->icon('heroicon-o-archive-box')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->visible(fn (Pesanan $record): bool => $record->status_pesanan === 'diproses')
+                    ->action(fn (Pesanan $record) => $record->ubahStatus(
+                        'siap_diambil',
+                        'Pesanan sudah selesai diproses dan siap diambil.'
+                    )),
+
+                Tables\Actions\Action::make('selesai')
+                    ->label('Selesai')
+                    ->icon('heroicon-o-check-badge')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn (Pesanan $record): bool => $record->status_pesanan === 'siap_diambil')
+                    ->action(fn (Pesanan $record) => $record->ubahStatus(
+                        'selesai',
+                        'Pesanan sudah diselesaikan dan diserahkan kepada pelanggan.'
+                    )),
+
+                Tables\Actions\Action::make('batalkan')
+                    ->label('Batalkan')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (Pesanan $record): bool => ! in_array($record->status_pesanan, ['selesai', 'dibatalkan']))
+                    ->action(fn (Pesanan $record) => $record->ubahStatus(
+                        'dibatalkan',
+                        'Pesanan dibatalkan oleh admin.'
+                    )),
+
                 Tables\Actions\EditAction::make()
                     ->label('Edit'),
 
