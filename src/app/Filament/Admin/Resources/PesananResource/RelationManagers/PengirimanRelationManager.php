@@ -90,13 +90,13 @@ class PengirimanRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('metode_pengiriman')
                     ->label('Metode')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         'ambil_di_kampus' => 'Ambil di Kampus',
                         'antar' => 'Diantar',
                         'ojek_online' => 'Ojek Online',
                         default => ucfirst($state),
                     })
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'ambil_di_kampus' => 'gray',
                         'antar' => 'info',
                         'ojek_online' => 'warning',
@@ -116,14 +116,14 @@ class PengirimanRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('status_pengiriman')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         'belum_dikirim' => 'Belum Dikirim',
                         'diproses' => 'Diproses',
                         'dikirim' => 'Dikirim',
                         'selesai' => 'Selesai',
                         default => ucfirst($state),
                     })
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'belum_dikirim' => 'gray',
                         'diproses' => 'warning',
                         'dikirim' => 'info',
@@ -146,8 +146,8 @@ class PengirimanRelationManager extends RelationManager
                     ->label('Proses')
                     ->icon('heroicon-o-clock')
                     ->color('warning')
-                    ->visible(fn ($record): bool => $record->status_pengiriman === 'belum_dikirim')
-                    ->action(fn ($record) => $record->update([
+                    ->visible(fn($record): bool => $record->status_pengiriman === 'belum_dikirim')
+                    ->action(fn($record) => $record->update([
                         'status_pengiriman' => 'diproses',
                     ])),
 
@@ -155,8 +155,8 @@ class PengirimanRelationManager extends RelationManager
                     ->label('Dikirim')
                     ->icon('heroicon-o-truck')
                     ->color('info')
-                    ->visible(fn ($record): bool => $record->status_pengiriman === 'diproses')
-                    ->action(fn ($record) => $record->update([
+                    ->visible(fn($record): bool => $record->status_pengiriman === 'diproses')
+                    ->action(fn($record) => $record->update([
                         'status_pengiriman' => 'dikirim',
                     ])),
 
@@ -164,8 +164,8 @@ class PengirimanRelationManager extends RelationManager
                     ->label('Selesai')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn ($record): bool => in_array($record->status_pengiriman, ['diproses', 'dikirim']))
-                    ->action(fn ($record) => $record->update([
+                    ->visible(fn($record): bool => in_array($record->status_pengiriman, ['diproses', 'dikirim']))
+                    ->action(fn($record) => $record->update([
                         'status_pengiriman' => 'selesai',
                     ])),
 

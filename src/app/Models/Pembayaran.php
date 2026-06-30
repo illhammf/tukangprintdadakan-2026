@@ -22,6 +22,21 @@ class Pembayaran extends Model
         'tanggal_bayar' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        static::saving(function (Pembayaran $pembayaran) {
+            $pesanan = $pembayaran->pesanan;
+
+            if ($pesanan) {
+                $pembayaran->jumlah_bayar = $pesanan->total_harga;
+
+                if ($pembayaran->status_pembayaran === 'lunas' && blank($pembayaran->tanggal_bayar)) {
+                    $pembayaran->tanggal_bayar = now();
+                }
+            }
+        });
+    }
+
     public function pesanan(): BelongsTo
     {
         return $this->belongsTo(Pesanan::class);

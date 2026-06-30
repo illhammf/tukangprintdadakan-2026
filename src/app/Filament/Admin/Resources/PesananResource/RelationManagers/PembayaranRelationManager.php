@@ -51,7 +51,7 @@ class PembayaranRelationManager extends RelationManager
                             ->numeric()
                             ->disabled()
                             ->dehydrated()
-                            ->default(fn ($livewire) => $livewire->ownerRecord->total_harga),
+                            ->default(fn($livewire) => $livewire->ownerRecord->total_harga),
 
                         Forms\Components\Select::make('status_pembayaran')
                             ->label('Status Pembayaran')
@@ -93,7 +93,7 @@ class PembayaranRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('metode_pembayaran')
                     ->label('Metode')
                     ->badge()
-                    ->formatStateUsing(fn ($state) => match ($state) {
+                    ->formatStateUsing(fn($state) => match ($state) {
                         'cash' => 'Cash',
                         'transfer' => 'Transfer',
                         'qris' => 'QRIS',
@@ -120,7 +120,7 @@ class PembayaranRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('status_pembayaran')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn ($state) => match ($state) {
+                    ->formatStateUsing(fn($state) => match ($state) {
                         'menunggu' => 'Menunggu',
                         'menunggu_verifikasi' => 'Verifikasi',
                         'lunas' => 'Lunas',
@@ -128,7 +128,7 @@ class PembayaranRelationManager extends RelationManager
                         'dibatalkan' => 'Dibatalkan',
                         default => ucfirst($state),
                     })
-                    ->color(fn ($state) => match ($state) {
+                    ->color(fn($state) => match ($state) {
                         'menunggu' => 'warning',
                         'menunggu_verifikasi' => 'info',
                         'lunas' => 'success',
