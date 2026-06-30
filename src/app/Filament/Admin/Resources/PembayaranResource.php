@@ -62,9 +62,10 @@ class PembayaranResource extends Resource
                             ->label('Metode Pembayaran')
                             ->options([
                                 'cash' => 'Cash',
-                                'transfer' => 'Transfer',
+                                'transfer' => 'Transfer Bank',
                             ])
-                            ->default('cash')
+                            ->native(false)
+                            ->live()
                             ->required(),
 
                         Forms\Components\Select::make('channel_pembayaran')

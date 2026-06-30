@@ -33,18 +33,22 @@ class PembayaranRelationManager extends RelationManager
                             ->options([
                                 'cash' => 'Cash',
                                 'transfer' => 'Transfer Bank',
-                                'qris' => 'QRIS',
-                                'dana' => 'DANA',
-                                'gopay' => 'GoPay',
-                                'ovo' => 'OVO',
                             ])
                             ->native(false)
+                            ->live()
                             ->required(),
 
                         Forms\Components\TextInput::make('channel_pembayaran')
-                            ->label('Channel')
-                            ->placeholder('Contoh: BRI, DANA, QRIS')
-                            ->maxLength(255),
+                            ->label('Bank')
+                            ->visible(fn (Forms\Get $get) =>
+                                $get('metode_pembayaran') === 'transfer'
+                            )
+                            ->required(fn (Forms\Get $get) =>
+                                $get('metode_pembayaran') === 'transfer'
+                            )
+                            ->dehydrated(fn (Forms\Get $get) =>
+                                $get('metode_pembayaran') === 'transfer'
+                            ),
 
                         Forms\Components\TextInput::make('jumlah_bayar')
                             ->label('Jumlah Bayar')
@@ -57,11 +61,10 @@ class PembayaranRelationManager extends RelationManager
                         Forms\Components\Select::make('status_pembayaran')
                             ->label('Status Pembayaran')
                             ->options([
-                                'menunggu' => 'Menunggu Pembayaran',
+                                'belum_bayar' => 'Belum Bayar',
                                 'menunggu_verifikasi' => 'Menunggu Verifikasi',
                                 'lunas' => 'Lunas',
-                                'gagal' => 'Gagal',
-                                'dibatalkan' => 'Dibatalkan',
+                                'ditolak' => 'Ditolak',
                             ])
                             ->native(false)
                             ->required(),
@@ -77,8 +80,16 @@ class PembayaranRelationManager extends RelationManager
                             ->imageEditor()
                             ->downloadable()
                             ->openable()
-                            ->columnSpanFull()
-                            ->helperText('Upload screenshot atau foto bukti pembayaran.'),
+                            ->visible(fn (Forms\Get $get) =>
+                                $get('metode_pembayaran') === 'transfer'
+                            )
+                            ->required(fn (Forms\Get $get) =>
+                                $get('metode_pembayaran') === 'transfer'
+                            )
+                            ->dehydrated(fn (Forms\Get $get)=>
+                                $get('metode_pembayaran')==='transfer'
+                            )
+                            ->columnSpanFull(),
 
                     ])
                     ->columns(2),
@@ -122,19 +133,17 @@ class PembayaranRelationManager extends RelationManager
                     ->label('Status')
                     ->badge()
                     ->formatStateUsing(fn($state) => match ($state) {
-                        'menunggu_pembayaran' => 'Menunggu Pembayaran',
-                        'menunggu_verifikasi' => 'Verifikasi',
+                        'belum_bayar' => 'Belum Bayar',
+                        'menunggu_verifikasi' => 'Menunggu Verifikasi',
                         'lunas' => 'Lunas',
-                        'gagal' => 'Gagal',
-                        'dibatalkan' => 'Dibatalkan',
+                        'ditolak' => 'Ditolak',
                         default => ucfirst($state),
                     })
                     ->color(fn($state) => match ($state) {
-                        'menunggu' => 'warning',
+                        'belum_bayar' => 'warning',
                         'menunggu_verifikasi' => 'info',
                         'lunas' => 'success',
-                        'gagal' => 'danger',
-                        'dibatalkan' => 'gray',
+                        'ditolak' => 'danger',
                         default => 'gray',
                     }),
 
@@ -158,6 +167,9 @@ class PembayaranRelationManager extends RelationManager
                         $record->update([
                             'status_pembayaran' => 'lunas',
                             'tanggal_bayar' => now(),
+                        ]);
+                        $record->pesanan->update([
+                            'status_pesanan' => 'diproses',
                         ]);
 
                         Notification::make()
