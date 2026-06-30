@@ -25,7 +25,7 @@ class PembayaranRelationManager extends RelationManager
             ->schema([
                 Forms\Components\Section::make('Informasi Pembayaran')
                     ->description('Kelola pembayaran untuk pesanan ini.')
-                    ->icon('heroicon-o-credit-card')
+                    ->icon('heroicon-s-credit-card')
                     ->schema([
 
                         Forms\Components\Select::make('metode_pembayaran')
@@ -156,7 +156,7 @@ class PembayaranRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\Action::make('tandai_lunas')
                     ->label('Tandai Lunas')
-                    ->icon('heroicon-o-check-circle')
+                    ->icon('heroicon-s-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
                     ->visible(fn ($record): bool => $record->status_pembayaran !== 'lunas')
@@ -189,6 +189,6 @@ class PembayaranRelationManager extends RelationManager
             ])
             ->emptyStateHeading('Belum ada pembayaran')
             ->emptyStateDescription('Tambahkan data pembayaran untuk pesanan ini.')
-            ->emptyStateIcon('heroicon-o-credit-card');
+            ->emptyStateIcon('heroicon-s-credit-card');
     }
 }
