@@ -6,6 +6,8 @@ use BezhanSalleh\FilamentShield\Resources\RoleResource as BaseRoleResource;
 
 class RoleResource extends BaseRoleResource
 {
+    protected static ?int $navigationSort = -2;
+    
     public static function getNavigationLabel(): string
     {
         return 'Hak Akses';
@@ -30,4 +32,5 @@ class RoleResource extends BaseRoleResource
     {
         return 'heroicon-s-shield-check';
     }
+
 }

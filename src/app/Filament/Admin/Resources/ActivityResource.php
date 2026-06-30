@@ -14,5 +14,7 @@ class ActivityResource extends BaseActivityResource
 
     protected static ?string $navigationGroup = 'Administration';
 
-    protected static ?string $navigationIcon = 'heroicon-o-clock';
+    protected static ?string $navigationIcon = 'heroicon-s-clock';
+
+    protected static ?int $navigationSort = -1;
 }
