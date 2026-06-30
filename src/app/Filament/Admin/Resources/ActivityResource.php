@@ -6,15 +6,30 @@ use Z3d0X\FilamentLogger\Resources\ActivityResource as BaseActivityResource;
 
 class ActivityResource extends BaseActivityResource
 {
-    protected static ?string $navigationLabel = 'Log Aktivitas';
-
-    protected static ?string $modelLabel = 'Log Aktivitas';
-
-    protected static ?string $pluralModelLabel = 'Log Aktivitas';
-
-    protected static ?string $navigationGroup = 'Administration';
-
-    protected static ?string $navigationIcon = 'heroicon-s-clock';
-
     protected static ?int $navigationSort = -1;
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Log Aktivitas';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Log Aktivitas';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Log Aktivitas';
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Administration';
+    }
+
+    public static function getNavigationIcon(): string
+    {
+        return 'heroicon-s-clock';
+    }
 }
