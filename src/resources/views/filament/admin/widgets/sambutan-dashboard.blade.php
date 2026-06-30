@@ -52,13 +52,13 @@
 
                 <div class="text-sm text-gray-500">
 
-                    Pesanan Baru
+                    Pesanan Hari Ini
 
                 </div>
 
                 <div class="text-3xl font-bold text-blue-600">
 
-                    {{ $pesananBaru }}
+                    {{ $pesananHariIni }}
 
                 </div>
 
@@ -68,13 +68,13 @@
 
                 <div class="text-sm text-gray-500">
 
-                    Menunggu Pembayaran
+                    Perlu Verifikasi
 
                 </div>
 
                 <div class="text-3xl font-bold text-yellow-600">
 
-                    {{ $menungguPembayaran }}
+                    {{ $perluVerifikasi }}
 
                 </div>
 
@@ -90,7 +90,7 @@
 
                 <div class="text-3xl font-bold text-green-600">
 
-                    {{ $ambilBesok }}
+                    {{ $pengambilanBesok }}
 
                 </div>
 

@@ -39,7 +39,7 @@ class SambutanDashboard extends Widget
 
             'jam' => Carbon::now()->format('H:i'),
 
-            'pesananBaru' => Pesanan::where('status_pesanan', 'menunggu_verifikasi')->count(),
+            'pesananHariIni' => Pesanan::whereDate('created_at', today())->count(),
 
             'menungguPembayaran' => Pembayaran::where('status_pembayaran', 'menunggu_verifikasi')->count(),
 
