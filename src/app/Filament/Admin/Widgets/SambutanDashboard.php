@@ -41,9 +41,12 @@ class SambutanDashboard extends Widget
 
             'pesananHariIni' => Pesanan::whereDate('created_at', today())->count(),
 
-            'menungguPembayaran' => Pembayaran::where('status_pembayaran', 'menunggu_verifikasi')->count(),
+            'perluVerifikasi' => Pembayaran::where(
+                'status_pembayaran',
+                'menunggu_verifikasi'
+            )->count(),
 
-            'ambilBesok' => Pesanan::whereDate(
+            'pengambilanBesok' => Pesanan::whereDate(
                 'tanggal_pengambilan',
                 today()->addDay()
             )->count(),
