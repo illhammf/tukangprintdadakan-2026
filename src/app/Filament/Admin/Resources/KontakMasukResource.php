@@ -206,7 +206,6 @@ class KontakMasukResource extends Resource
     {
         return [
             'index' => Pages\ListKontakMasuks::route('/'),
-            'create' => Pages\CreateKontakMasuk::route('/create'),
             'edit' => Pages\EditKontakMasuk::route('/{record}/edit'),
         ];
     }
