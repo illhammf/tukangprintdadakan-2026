@@ -16,7 +16,7 @@ class PesananSeeder extends Seeder
     public function run(): void
     {
         $user = User::first();
-        $layanan = Layanan::where('slug', 'print-hitam-putih')->first();
+        $layanan = Layanan::where('slug', 'print-dokumen')->first();
 
         if (! $layanan) {
             return;
