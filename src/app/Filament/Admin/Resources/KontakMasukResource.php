@@ -54,11 +54,13 @@ class KontakMasukResource extends Resource
                         Forms\Components\TextInput::make('email')
                             ->label('Email')
                             ->email()
+                            ->required() // Untuk memastikan email valid dan tidak kosong
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('nomor_whatsapp')
                             ->label('Nomor WhatsApp')
                             ->tel()
+                            ->required() // Untuk memastikan nomor WhatsApp valid dan tidak kosong
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('subjek')
