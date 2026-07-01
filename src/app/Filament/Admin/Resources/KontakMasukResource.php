@@ -157,6 +157,22 @@ class KontakMasukResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('hubungi_whatsapp')
+                    ->label('WhatsApp')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->color('success')
+                    ->url(function (KontakMasuk $record): string {
+                        $nomor = preg_replace('/[^0-9]/', '', $record->nomor_whatsapp);
+
+                        if (str_starts_with($nomor, '0')) {
+                            $nomor = '62' . substr($nomor, 1);
+                        }
+
+                        return 'https://wa.me/' . $nomor;
+                    })
+                    ->openUrlInNewTab()
+                    ->visible(fn (KontakMasuk $record): bool => filled($record->nomor_whatsapp)),
+                    
                 Tables\Actions\ViewAction::make()
                     ->label('Lihat'),
 
