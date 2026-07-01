@@ -223,7 +223,8 @@ class DetailPesanansRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->label('Tambah Detail'),
+                    ->label('Tambah Detail')
+                    ->visible(fn () => $this->ownerRecord->detailPesanans()->count() < 5),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
