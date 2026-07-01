@@ -42,7 +42,11 @@ class LayananResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('kategori_layanan_id')
                             ->label('Kategori Layanan')
-                            ->relationship('kategoriLayanan', 'nama_kategori')
+                            ->relationship(
+                                name: 'kategoriLayanan',
+                                titleAttribute: 'nama_kategori',
+                                modifyQueryUsing: fn ($query) => $query->where('status', true)
+                            )
                             ->searchable()
                             ->preload()
                             ->required(),
@@ -230,12 +234,7 @@ class LayananResource extends Resource
                 Tables\Actions\DeleteAction::make()
                     ->label('Hapus'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->label('Hapus Terpilih'),
-                ]),
-            ])
+            ->bulkActions([])
             ->emptyStateHeading('Belum ada layanan')
             ->emptyStateDescription('Tambahkan layanan seperti Print Hitam Putih, Print Warna, Fotokopi, Jilid, atau Laminating.')
             ->emptyStateIcon('heroicon-o-printer');

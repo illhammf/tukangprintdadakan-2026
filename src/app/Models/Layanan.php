@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\DetailPesanan;
 
 class Layanan extends Model
 {
@@ -29,6 +31,11 @@ class Layanan extends Model
 
     public function kategoriLayanan(): BelongsTo
     {
-        return $this->belongsTo(KategoriLayanan::class);
+        return $this->belongsTo(KategoriLayanan::class); // Layanan milik kategori layanan
+    }
+
+    public function detailPesanans(): HasMany
+    {
+        return $this->hasMany(DetailPesanan::class); // Layanan memiliki banyak DetailPesanan
     }
 }
