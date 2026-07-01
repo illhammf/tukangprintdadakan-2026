@@ -11,10 +11,10 @@ class DetailPesananSeeder extends Seeder
 {
     public function run(): void
     {
-        $pesanan = Pesanan::first();
-        $layanan = Layanan::first();
+        $pesanan = Pesanan::where('kode_pesanan', 'TPD-20260622-0001')->first();
+        $layanan = Layanan::where('slug', 'print-dokumen')->first();
 
-        if (!$pesanan || !$layanan) {
+        if (! $pesanan || ! $layanan) {
             return;
         }
 
