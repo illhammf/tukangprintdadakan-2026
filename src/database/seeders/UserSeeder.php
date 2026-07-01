@@ -3,27 +3,33 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $user = User::firstOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@admin.com'],
-            ['name' => 'Super Admin', 'password' => Hash::make('password')]
+            [
+                'name' => 'Super Admin',
+                'nomor_whatsapp' => '081234567890',
+                'password' => Hash::make('password'),
+            ]
         );
-        $user->assignRole('super_admin');
 
-        $user = User::firstOrCreate(
+        $admin->syncRoles(['super_admin']);
+
+        $pelanggan = User::updateOrCreate(
             ['email' => 'user@admin.com'],
-            ['name' => 'User Account', 'password' => Hash::make('password')]
+            [
+                'name' => 'Pelanggan Contoh',
+                'nomor_whatsapp' => '081234567891',
+                'password' => Hash::make('password'),
+            ]
         );
-        $user->assignRole('user');
+
+        $pelanggan->syncRoles(['pelanggan']);
     }
 }
