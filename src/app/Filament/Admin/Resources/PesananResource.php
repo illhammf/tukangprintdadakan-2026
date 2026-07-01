@@ -122,7 +122,9 @@ class PesananResource extends Resource
                             ])
                             ->default('menunggu_verifikasi')
                             ->native(false)
-                            ->required(),
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->helperText('Status pesanan diubah melalui tombol aksi agar riwayat status tercatat.'),
 
                         Forms\Components\Textarea::make('detail_lokasi')
                             ->label('Detail Lokasi')
