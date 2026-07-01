@@ -161,17 +161,18 @@ class PembayaranRelationManager extends RelationManager
                     ->requiresConfirmation()
                     ->visible(fn ($record): bool => $record->status_pembayaran !== 'lunas')
                     ->action(function ($record) {
-                    $record->pesanan->update([
-                        'status_pesanan' => 'diproses',
-                    ]);
-
-                    $record->pesanan
-                        ->riwayatStatusPesanans()
-                        ->create([
-                            'status' => 'diproses',
-                            'catatan' => 'Pembayaran telah lunas. Pesanan mulai diproses.',
-                            'waktu_status' => now(),
+                        $record->update([
+                            'status_pembayaran' => 'lunas',
+                            'tanggal_bayar' => now(),
+                            'jumlah_bayar' => $record->pesanan?->total_harga ?? $record->jumlah_bayar,
                         ]);
+
+                        if ($record->pesanan && $record->pesanan->status_pesanan === 'menunggu_verifikasi') {
+                            $record->pesanan->ubahStatus(
+                                'diproses',
+                                'Pembayaran telah lunas. Pesanan mulai diproses.'
+                            );
+                        }
 
                         Notification::make()
                             ->title('Pembayaran ditandai lunas')
