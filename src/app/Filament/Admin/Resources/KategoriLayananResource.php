@@ -144,10 +144,14 @@ class KategoriLayananResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->label('Lihat'),
+
                 Tables\Actions\EditAction::make()
                     ->label('Edit'),
+
                 Tables\Actions\DeleteAction::make()
-                    ->label('Hapus'),
+                    ->label('Hapus')
+                    ->visible(fn (KategoriLayanan $record): bool => $record->layanans()->count() === 0)
+                    ->requiresConfirmation(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
