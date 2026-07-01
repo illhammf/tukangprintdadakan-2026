@@ -140,7 +140,8 @@ class PengirimanRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->label('Tambah Pengiriman'),
+                    ->label('Tambah Pengiriman')
+                    ->visible(fn () => $this->ownerRecord->pengiriman === null),
             ])
             ->actions([
                 Tables\Actions\Action::make('proses')
