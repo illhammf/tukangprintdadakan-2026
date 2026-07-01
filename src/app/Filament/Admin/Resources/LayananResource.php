@@ -86,12 +86,13 @@ class LayananResource extends Resource
                     ->description('Atur harga dasar, satuan, dan ketentuan layanan.')
                     ->icon('heroicon-o-banknotes')
                     ->schema([
-                        Forms\Components\TextInput::make('harga_dasar')
-                            ->label('Harga Dasar')
-                            ->prefix('Rp')
-                            ->numeric()
-                            ->required()
-                            ->default(0),
+                    Forms\Components\TextInput::make('harga_dasar')
+                        ->label('Harga Dasar')
+                        ->prefix('Rp')
+                        ->numeric()
+                        ->minValue(0) // Untuk memastikan harga tidak negatif
+                        ->required()
+                        ->default(0),
 
                         Forms\Components\Select::make('satuan')
                             ->label('Satuan')
