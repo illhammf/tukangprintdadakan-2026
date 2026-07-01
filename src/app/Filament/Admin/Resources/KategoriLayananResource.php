@@ -153,12 +153,7 @@ class KategoriLayananResource extends Resource
                     ->visible(fn (KategoriLayanan $record): bool => $record->layanans()->count() === 0)
                     ->requiresConfirmation(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->label('Hapus Terpilih'),
-                ]),
-            ])
+            ->bulkActions([])
             ->emptyStateHeading('Belum ada kategori layanan')
             ->emptyStateDescription('Tambahkan kategori layanan pertama untuk mengelompokkan layanan print.')
             ->emptyStateIcon('heroicon-o-squares-2x2');
