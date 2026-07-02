@@ -259,16 +259,8 @@ class PembayaranResource extends Resource
 
                 Tables\Actions\EditAction::make()
                     ->label('Edit'),
-
-                Tables\Actions\DeleteAction::make()
-                    ->label('Hapus'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->label('Hapus Terpilih'),
-                ]),
-            ])
+            ->bulkActions([])
             ->emptyStateHeading('Belum ada data pembayaran')
             ->emptyStateDescription('Data pembayaran pelanggan akan muncul di sini.')
             ->emptyStateIcon('heroicon-o-credit-card');
