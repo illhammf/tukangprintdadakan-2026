@@ -12,8 +12,6 @@ class ListPengirimen extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            Actions\CreateAction::make(),
-        ];
+        return []; // Menghapus tombol "Create" dari halaman daftar pengiriman
     }
 }
