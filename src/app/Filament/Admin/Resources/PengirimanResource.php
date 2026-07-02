@@ -247,7 +247,6 @@ class PengirimanResource extends Resource
     {
         return [
             'index' => Pages\ListPengirimen::route('/'),
-            'create' => Pages\CreatePengiriman::route('/create'),
             'edit' => Pages\EditPengiriman::route('/{record}/edit'),
         ];
     }
