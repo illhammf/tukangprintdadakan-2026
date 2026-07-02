@@ -117,7 +117,7 @@ class UserResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('avatar_url')
-                    ->defaultImageUrl(url('https://www.gravatar.com/avatar/64e1b8d34f425d19e1ee2ea7236d3028?d=mp&r=g&s=250'))
+                    ->defaultImageUrl('https://www.gravatar.com/avatar/64e1b8d34f425d19e1ee2ea7236d3028?d=mp&r=g&s=250') // Untuk menampilkan avatar default jika tidak ada avatar yang diunggah
                     ->label('Avatar')
                     ->circular(),
                 Tables\Columns\TextColumn::make('email')
