@@ -113,6 +113,7 @@ class PengaturanBookingResource extends Resource
                             ->label('Biaya Jilid')
                             ->prefix('Rp')
                             ->numeric()
+                            ->minValue(0) // Untuk memastikan biaya tidak negatif
                             ->required()
                             ->default(0),
 
@@ -120,6 +121,7 @@ class PengaturanBookingResource extends Resource
                             ->label('Biaya Laminating')
                             ->prefix('Rp')
                             ->numeric()
+                            ->minValue(0) // Untuk memastikan biaya tidak negatif
                             ->required()
                             ->default(0),
 
@@ -127,13 +129,16 @@ class PengaturanBookingResource extends Resource
                             ->label('Biaya Prioritas')
                             ->prefix('Rp')
                             ->numeric()
+                            ->minValue(0) // Untuk memastikan biaya tidak negatif
                             ->required()
-                            ->default(0),
+                            ->default(0)
+                            ->visible(fn (Forms\Get $get): bool => (bool) $get('aktifkan_order_prioritas')), // Hanya tampil jika order prioritas diaktifkan
 
                         Forms\Components\TextInput::make('ongkir_kampus')
                             ->label('Ongkir Area Kampus')
                             ->prefix('Rp')
                             ->numeric()
+                            ->minValue(0) // Untuk memastikan biaya tidak negatif
                             ->required()
                             ->default(0),
                     ])
@@ -147,6 +152,7 @@ class PengaturanBookingResource extends Resource
                             ->label('Aktifkan Order Prioritas')
                             ->helperText('Jika aktif, pelanggan dapat memilih pengerjaan prioritas.')
                             ->default(false)
+                            ->live() // untuk memastikan perubahan langsung terlihat di UI
                             ->required(),
 
                         Forms\Components\Toggle::make('wajib_upload_bukti_online')
