@@ -57,6 +57,7 @@ class UserResource extends Resource
                         Forms\Components\FileUpload::make('avatar_url')
                             ->label('Avatar')
                             ->image()
+                            ->directory('avatars') // Untuk menyimpan file di folder "avatars" di storage
                             ->optimize('webp')
                             ->imageEditor()
                             ->imagePreviewHeight('250')
