@@ -69,11 +69,13 @@ class PengaturanWebsiteResource extends Resource
                         Forms\Components\TextInput::make('hero_title')
                             ->label('Judul Hero')
                             ->placeholder('Tukang Print Dadakan')
+                            ->required() // Untuk memastikan judul hero tidak kosong
                             ->maxLength(255),
 
                         Forms\Components\Textarea::make('hero_subtitle')
                             ->label('Subjudul Hero')
                             ->placeholder('Solusi cepat dan mudah untuk kebutuhan print mahasiswa.')
+                            ->required()
                             ->rows(4)
                             ->columnSpanFull(),
 
@@ -95,23 +97,27 @@ class PengaturanWebsiteResource extends Resource
                             ->label('Nomor WhatsApp')
                             ->placeholder('08xxxxxxxxxx')
                             ->tel()
+                            ->required()
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('email')
                             ->label('Email')
                             ->placeholder('tukangprint@gmail.com')
                             ->email()
+                            ->required()
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('jam_operasional')
                             ->label('Jam Operasional')
                             ->placeholder('Senin - Jumat, kecuali tanggal merah')
+                            ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),
 
                         Forms\Components\Textarea::make('alamat')
                             ->label('Alamat / Lokasi Pengambilan')
                             ->placeholder('Kampus UEU Tangerang')
+                            ->required()
                             ->rows(3)
                             ->columnSpanFull(),
                     ])
