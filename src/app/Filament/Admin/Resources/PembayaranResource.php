@@ -71,13 +71,15 @@ class PembayaranResource extends Resource
                         Forms\Components\Select::make('channel_pembayaran')
                             ->label('Channel Pembayaran')
                             ->options([
-                                'cash' => 'Cash',
                                 'dana' => 'DANA',
                                 'bri' => 'BRI',
                                 'qris' => 'QRIS',
                                 'lainnya' => 'Lainnya',
                             ])
-                            ->searchable(),
+                            ->searchable()
+                            ->visible(fn (Forms\Get $get): bool => $get('metode_pembayaran') === 'transfer') // Hanya tampil jika metode pembayaran adalah transfer
+                            ->required(fn (Forms\Get $get): bool => $get('metode_pembayaran') === 'transfer') // Hanya wajib diisi jika metode pembayaran adalah transfer
+                            ->dehydrated(fn (Forms\Get $get): bool => $get('metode_pembayaran') === 'transfer'), // Hanya disimpan ke database jika metode pembayaran adalah transfer
 
                         Forms\Components\TextInput::make('jumlah_bayar')
                             ->label('Jumlah Bayar')
