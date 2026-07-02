@@ -158,7 +158,9 @@ class DetailPesananResource extends Resource
                             ->numeric()
                             ->minValue(0)
                             ->required()
-                            ->default(0),
+                            ->default(0)
+                            ->disabled()
+                            ->dehydrated(),
                     ])
                     ->columns(2),
             ]);
@@ -261,14 +263,10 @@ class DetailPesananResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->label('Edit'),
                 Tables\Actions\DeleteAction::make()
-                    ->label('Hapus'),
+                    ->label('Hapus')
+                    ->requiresConfirmation(), //Untuk menambahkan konfirmasi sebelum menghapus record
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->label('Hapus Terpilih'),
-                ]),
-            ])
+            ->bulkActions([])
             ->emptyStateHeading('Belum ada detail pesanan')
             ->emptyStateDescription('Detail layanan dan file pesanan pelanggan akan muncul di sini.')
             ->emptyStateIcon('heroicon-o-document-duplicate');
