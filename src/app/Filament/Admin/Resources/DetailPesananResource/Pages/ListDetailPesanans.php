@@ -12,8 +12,6 @@ class ListDetailPesanans extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            Actions\CreateAction::make(),
-        ];
+        return []; // Ubah menjadi array kosong untuk menghapus tombol "Create"
     }
 }

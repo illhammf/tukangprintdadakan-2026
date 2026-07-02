@@ -277,7 +277,6 @@ class DetailPesananResource extends Resource
     {
         return [
             'index' => Pages\ListDetailPesanans::route('/'),
-            'create' => Pages\CreateDetailPesanan::route('/create'),
             'edit' => Pages\EditDetailPesanan::route('/{record}/edit'),
         ];
     }
