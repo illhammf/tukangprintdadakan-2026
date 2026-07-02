@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -146,12 +147,11 @@ class UserResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
                     ->visible(
-                        fn(User $record): bool =>
-                        auth()->id() !== $record->id &&
+                        fn (User $record): bool =>
+                            Auth::id() !== $record->id &&
                             ! $record->hasRole('super_admin')
                     )
                     ->requiresConfirmation(),
-
             ])
             ->bulkActions([])
             ->emptyStateActions([
