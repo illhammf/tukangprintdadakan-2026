@@ -148,6 +148,7 @@ class DetailPesananResource extends Resource
                             ->label('Harga Satuan')
                             ->prefix('Rp')
                             ->numeric()
+                            ->minValue(0)
                             ->required()
                             ->default(0),
 
@@ -155,6 +156,7 @@ class DetailPesananResource extends Resource
                             ->label('Subtotal')
                             ->prefix('Rp')
                             ->numeric()
+                            ->minValue(0)
                             ->required()
                             ->default(0),
                     ])
