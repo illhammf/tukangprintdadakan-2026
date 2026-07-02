@@ -148,16 +148,8 @@ class RiwayatStatusPesananResource extends Resource
             ])
 
             ->actions([
-
                 Tables\Actions\ViewAction::make()
                     ->label('Lihat'),
-
-                Tables\Actions\EditAction::make()
-                    ->label('Edit'),
-
-                Tables\Actions\DeleteAction::make()
-                    ->label('Hapus'),
-
             ])
 
             ->bulkActions([
