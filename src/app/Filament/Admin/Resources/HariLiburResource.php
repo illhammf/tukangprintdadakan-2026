@@ -115,6 +115,24 @@ class HariLiburResource extends Resource
                     ->falseLabel('Nonaktif'),
             ])
             ->actions([
+                Tables\Actions\Action::make('aktifkan')
+                    ->label('Aktifkan')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn (HariLibur $record): bool => ! $record->status)
+                    ->action(fn (HariLibur $record) => $record->update([
+                        'status' => true,
+                    ])),
+
+                Tables\Actions\Action::make('nonaktifkan')
+                    ->label('Nonaktifkan')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn (HariLibur $record): bool => $record->status)
+                    ->action(fn (HariLibur $record) => $record->update([
+                        'status' => false,
+                    ])),
+                    
                 Tables\Actions\ViewAction::make()
                     ->label('Lihat'),
                 Tables\Actions\EditAction::make()
