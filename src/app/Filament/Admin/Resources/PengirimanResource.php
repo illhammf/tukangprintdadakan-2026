@@ -221,16 +221,8 @@ class PengirimanResource extends Resource
 
                 Tables\Actions\EditAction::make()
                     ->label('Edit'),
-
-                Tables\Actions\DeleteAction::make()
-                    ->label('Hapus'),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->label('Hapus Terpilih'),
-                ]),
-            ])
+            ->bulkActions([])
             ->emptyStateHeading('Belum ada data pengiriman')
             ->emptyStateDescription('Data pengiriman atau pengambilan pesanan akan muncul di sini.')
             ->emptyStateIcon('heroicon-o-truck');
