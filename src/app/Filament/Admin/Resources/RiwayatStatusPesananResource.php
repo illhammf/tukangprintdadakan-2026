@@ -152,16 +152,7 @@ class RiwayatStatusPesananResource extends Resource
                     ->label('Lihat'),
             ])
 
-            ->bulkActions([
-
-                Tables\Actions\BulkActionGroup::make([
-
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->label('Hapus Terpilih'),
-
-                ]),
-
-            ])
+            ->bulkActions([])
 
             ->emptyStateHeading('Belum ada riwayat status')
 
@@ -179,8 +170,6 @@ class RiwayatStatusPesananResource extends Resource
     {
         return [
             'index' => Pages\ListRiwayatStatusPesanans::route('/'),
-            'create' => Pages\CreateRiwayatStatusPesanan::route('/create'),
-            'edit' => Pages\EditRiwayatStatusPesanan::route('/{record}/edit'),
         ];
     }
 }
