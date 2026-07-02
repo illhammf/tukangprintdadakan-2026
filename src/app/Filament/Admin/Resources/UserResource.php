@@ -90,16 +90,17 @@ class UserResource extends Resource
                             ->password(),
                     ]),
 
-                Forms\Components\Section::make('Roles')
+                Forms\Components\Section::make('Hak Akses')
                     ->schema([
                         Forms\Components\Select::make('roles')
                             ->required()
                             ->multiple()
                             ->relationship('roles', 'name')
-                            ->label('Roles'),
+                            ->label('Role / Hak Akses')
+                            ->preload()
+                            ->searchable(),
                     ])
                     ->columns(1),
-
             ]);
     }
 
@@ -120,6 +121,12 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('nomor_whatsapp')
+                    ->label('WhatsApp')
+                    ->searchable()
+                    ->copyable()
+                    ->icon('heroicon-o-phone')
+                    ->placeholder('-'),
                 Tables\Columns\TextColumn::make('roles.name')
                     ->badge()
                     ->sortable()
@@ -136,7 +143,12 @@ class UserResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn (User $record): bool =>
+                        auth()->id() !== $record->id &&
+                        ! $record->hasRole('super_admin')
+                    )
+                    ->requiresConfirmation(),
 
             ])
             ->bulkActions([
