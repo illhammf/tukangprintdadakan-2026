@@ -48,7 +48,13 @@ class DetailPesananResource extends Resource
 
                         Forms\Components\Select::make('layanan_id')
                             ->label('Layanan')
-                            ->relationship('layanan', 'nama_layanan')
+                            ->relationship(
+                                name: 'layanan',
+                                titleAttribute: 'nama_layanan',
+                                modifyQueryUsing: fn ($query) => $query
+                                    ->where('status', true)
+                                    ->where('bisa_online', true)
+                            )
                             ->searchable()
                             ->preload(),
                     ])
