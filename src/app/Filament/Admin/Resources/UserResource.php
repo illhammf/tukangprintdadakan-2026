@@ -82,11 +82,11 @@ class UserResource extends Resource
                             ->password()
                             ->confirmed()
                             ->columnSpan(1)
-                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                            ->dehydrated(fn ($state) => filled($state))
-                            ->required(fn (string $context): bool => $context === 'create'),
+                            ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                            ->dehydrated(fn($state) => filled($state))
+                            ->required(fn(string $context): bool => $context === 'create'),
                         Forms\Components\TextInput::make('password_confirmation')
-                            ->required(fn (string $context): bool => $context === 'create')
+                            ->required(fn(string $context): bool => $context === 'create')
                             ->columnSpan(1)
                             ->password(),
                     ]),
@@ -145,18 +145,15 @@ class UserResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
-                    ->visible(fn (User $record): bool =>
+                    ->visible(
+                        fn(User $record): bool =>
                         auth()->id() !== $record->id &&
-                        ! $record->hasRole('super_admin')
+                            ! $record->hasRole('super_admin')
                     )
                     ->requiresConfirmation(),
 
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
+            ->bulkActions([])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
             ]);
