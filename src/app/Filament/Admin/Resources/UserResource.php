@@ -64,10 +64,18 @@ class UserResource extends Resource
                             ->panelLayout('integrated')
                             ->columnSpan('full'),
                         Forms\Components\TextInput::make('email')
+                            ->label('Email')
                             ->required()
                             ->prefixIcon('heroicon-m-envelope')
                             ->columnSpan('full')
                             ->email(),
+
+                        Forms\Components\TextInput::make('nomor_whatsapp')
+                            ->label('Nomor WhatsApp')
+                            ->tel()
+                            ->prefixIcon('heroicon-m-phone')
+                            ->maxLength(255)
+                            ->columnSpan('full'),
 
                         Forms\Components\TextInput::make('password')
                             ->password()
