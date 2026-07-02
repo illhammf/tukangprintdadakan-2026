@@ -79,9 +79,7 @@ class RiwayatStatusPesananResource extends Resource
     {
         return $table
             ->defaultSort('waktu_status', 'desc')
-
             ->columns([
-
                 Tables\Columns\TextColumn::make('pesanan.kode_pesanan')
                     ->label('Kode Pesanan')
                     ->badge()
@@ -97,44 +95,36 @@ class RiwayatStatusPesananResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn(string $state) => match ($state) {
-
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'menunggu_verifikasi' => 'Menunggu Verifikasi',
                         'diproses' => 'Diproses',
                         'siap_diambil' => 'Siap Diambil',
                         'selesai' => 'Selesai',
                         'dibatalkan' => 'Dibatalkan',
-
                         default => ucfirst($state),
-
                     })
-                    ->color(fn(string $state) => match ($state) {
-
+                    ->color(fn (string $state): string => match ($state) {
                         'menunggu_verifikasi' => 'warning',
                         'diproses' => 'info',
                         'siap_diambil' => 'success',
                         'selesai' => 'gray',
                         'dibatalkan' => 'danger',
-
                         default => 'gray',
-
                     }),
 
                 Tables\Columns\TextColumn::make('catatan')
                     ->label('Catatan')
-                    ->limit(40)
-                    ->wrap(),
+                    ->limit(60)
+                    ->wrap()
+                    ->placeholder('-'),
 
                 Tables\Columns\TextColumn::make('waktu_status')
                     ->label('Waktu')
                     ->dateTime('d M Y H:i')
                     ->sortable()
                     ->since(),
-
             ])
-
             ->filters([
-
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status')
                     ->options([
@@ -144,20 +134,14 @@ class RiwayatStatusPesananResource extends Resource
                         'selesai' => 'Selesai',
                         'dibatalkan' => 'Dibatalkan',
                     ]),
-
             ])
-
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->label('Lihat'),
             ])
-
             ->bulkActions([])
-
             ->emptyStateHeading('Belum ada riwayat status')
-
             ->emptyStateDescription('Perubahan status setiap pesanan akan tercatat di sini.')
-
             ->emptyStateIcon('heroicon-s-clock');
     }
 
