@@ -222,13 +222,21 @@ class PembayaranResource extends Resource
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->visible(fn (Pembayaran $record): bool => $record->status_pembayaran !== 'lunas')
-                    ->action(fn (Pembayaran $record) => $record->update([
-                        'status_pembayaran' => 'lunas',
-                        'tanggal_bayar' => $record->tanggal_bayar ?? now(),
-                        'jumlah_bayar' => $record->jumlah_bayar > 0
-                            ? $record->jumlah_bayar
-                            : ($record->pesanan?->total_harga ?? 0),
-                    ])),
+                    ->requiresConfirmation()
+                    ->action(function (Pembayaran $record) {
+                        $record->update([
+                            'status_pembayaran' => 'lunas',
+                            'tanggal_bayar' => $record->tanggal_bayar ?? now(),
+                            'jumlah_bayar' => $record->pesanan?->total_harga ?? $record->jumlah_bayar,
+                        ]);
+
+                        if ($record->pesanan && $record->pesanan->status_pesanan === 'menunggu_verifikasi') {
+                            $record->pesanan->ubahStatus(
+                                'diproses',
+                                'Pembayaran telah lunas. Pesanan mulai diproses.'
+                            );
+                        }
+                    }),
 
                 Tables\Actions\Action::make('tolak')
                     ->label('Tolak')
