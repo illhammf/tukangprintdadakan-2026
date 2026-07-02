@@ -265,7 +265,6 @@ class PembayaranResource extends Resource
     {
         return [
             'index' => Pages\ListPembayarans::route('/'),
-            'create' => Pages\CreatePembayaran::route('/create'),
             'edit' => Pages\EditPembayaran::route('/{record}/edit'),
         ];
     }
