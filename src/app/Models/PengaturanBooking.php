@@ -15,8 +15,6 @@ class PengaturanBooking extends Model
         'tutup_tanggal_merah',
         'maksimal_lembar_per_hari',
         'maksimal_lembar_per_order',
-        'maksimal_jadwal_belajar_per_jam',
-        'minimal_hari_rapihin_tugas',
         'biaya_jilid',
         'biaya_laminating',
         'biaya_prioritas',

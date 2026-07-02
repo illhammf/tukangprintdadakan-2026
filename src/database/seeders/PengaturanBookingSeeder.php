@@ -20,8 +20,6 @@ class PengaturanBookingSeeder extends Seeder
                 'tutup_tanggal_merah' => true,
                 'maksimal_lembar_per_hari' => 500,
                 'maksimal_lembar_per_order' => 100,
-                'maksimal_jadwal_belajar_per_jam' => 1,
-                'minimal_hari_rapihin_tugas' => 2,
                 'biaya_jilid' => 5000,
                 'biaya_laminating' => 3000,
                 'biaya_prioritas' => 5000,

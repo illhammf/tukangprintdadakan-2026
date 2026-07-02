@@ -21,8 +21,6 @@ return new class extends Migration
             $table->boolean('tutup_tanggal_merah')->default(true);
             $table->integer('maksimal_lembar_per_hari')->nullable();
             $table->integer('maksimal_lembar_per_order')->nullable();
-            $table->integer('maksimal_jadwal_belajar_per_jam')->nullable();
-            $table->integer('minimal_hari_rapihin_tugas')->nullable();
             $table->decimal('biaya_jilid', 12, 2)->default(0);
             $table->decimal('biaya_laminating', 12, 2)->default(0);
             $table->decimal('biaya_prioritas', 12, 2)->default(0);

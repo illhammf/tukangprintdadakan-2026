@@ -90,18 +90,6 @@ class PengaturanBookingResource extends Resource
                             ->numeric()
                             ->minValue(0)
                             ->placeholder('Contoh: 100'),
-
-                        Forms\Components\TextInput::make('maksimal_jadwal_belajar_per_jam')
-                            ->label('Maksimal Jadwal Belajar per Jam')
-                            ->numeric()
-                            ->minValue(0)
-                            ->placeholder('Contoh: 1'),
-
-                        Forms\Components\TextInput::make('minimal_hari_rapihin_tugas')
-                            ->label('Minimal Hari Rapihin Tugas')
-                            ->numeric()
-                            ->minValue(0)
-                            ->placeholder('Contoh: 2'),
                     ])
                     ->columns(2),
 
