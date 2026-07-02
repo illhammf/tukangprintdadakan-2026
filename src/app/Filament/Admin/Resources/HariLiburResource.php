@@ -43,6 +43,7 @@ class HariLiburResource extends Resource
                             ->label('Tanggal Libur')
                             ->native(false)
                             ->displayFormat('d M Y')
+                            ->unique(ignoreRecord: true) // Unik untuk memastikan tidak ada tanggal libur yang sama
                             ->required(),
 
                         Forms\Components\TextInput::make('nama_libur')
