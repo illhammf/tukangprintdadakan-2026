@@ -244,9 +244,18 @@ class PembayaranResource extends Resource
                     ->color('danger')
                     ->visible(fn (Pembayaran $record): bool => $record->status_pembayaran === 'menunggu_verifikasi')
                     ->requiresConfirmation()
-                    ->action(fn (Pembayaran $record) => $record->update([
-                        'status_pembayaran' => 'ditolak',
-                    ])),
+                    ->action(function (Pembayaran $record) {
+                        $record->update([
+                            'status_pembayaran' => 'ditolak',
+                            'tanggal_bayar' => null,
+                        ]);
+
+                        $record->pesanan?->riwayatStatusPesanans()->create([
+                            'status' => $record->pesanan->status_pesanan,
+                            'catatan' => 'Pembayaran ditolak. Pelanggan perlu mengirim ulang bukti pembayaran.',
+                            'waktu_status' => now(),
+                        ]);
+                    }),
 
                 Tables\Actions\EditAction::make()
                     ->label('Edit'),
