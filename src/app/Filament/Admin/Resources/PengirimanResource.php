@@ -41,10 +41,15 @@ class PengirimanResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('pesanan_id')
                             ->label('Kode Pesanan')
-                            ->relationship('pesanan', 'kode_pesanan')
+                            ->relationship(
+                                name: 'pesanan',
+                                titleAttribute: 'kode_pesanan',
+                                modifyQueryUsing: fn ($query) => $query->whereDoesntHave('pengiriman')
+                            )
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->disabledOn('edit'),
                     ]),
 
                 Forms\Components\Section::make('Informasi Pengiriman')
@@ -63,10 +68,11 @@ class PengirimanResource extends Resource
 
                         Forms\Components\TextInput::make('biaya_pengiriman')
                             ->label('Biaya Pengiriman')
-                            ->prefix('Rp')
-                            ->numeric()
+                            ->prefix('Rp') // Menambahkan prefix "Rp" untuk menandakan mata uang Rupiah
+                            ->numeric() // Untuk memastikan input hanya berupa angka
+                            ->minValue(0) // Untuk memastikan nilai tidak negatif
                             ->required()
-                            ->default(0),
+                            ->default(0), // Menetapkan default value menjadi 0
 
                         Forms\Components\Select::make('status_pengiriman')
                             ->label('Status Pengiriman')
