@@ -83,6 +83,7 @@ class PembayaranResource extends Resource
                             ->label('Jumlah Bayar')
                             ->prefix('Rp')
                             ->numeric()
+                            ->minValue(0)
                             ->required()
                             ->default(0),
 
