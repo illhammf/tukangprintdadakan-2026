@@ -2,12 +2,10 @@
 
 namespace App\Filament\Admin\Widgets;
 
-use App\Models\Pembayaran;
-use App\Models\Pesanan;
-use Carbon\Carbon; // Untuk mendapatkan tanggal dan waktu saat ini
-use Filament\Widgets\Widget;
 use App\Models\PengaturanWebsite;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Pesanan;
+use Filament\Widgets\Widget;
+use Illuminate\Support\Facades\Auth;
 
 class SambutanDashboard extends Widget
 {
@@ -19,49 +17,50 @@ class SambutanDashboard extends Widget
 
     protected function getViewData(): array
     {
-        $hour = now()->hour;
+        $now = now(config('app.timezone', 'Asia/Jakarta'));
+
+        $hour = (int) $now->format('H');
 
         if ($hour >= 5 && $hour < 11) {
             $greeting = 'Selamat Pagi ☀️';
         } elseif ($hour >= 11 && $hour < 15) {
             $greeting = 'Selamat Siang 🌤️';
         } elseif ($hour >= 15 && $hour < 18) {
-            $greeting = 'Selamat Sore 🌇';
+            $greeting = 'Selamat Sore 🌥️';
         } else {
             $greeting = 'Selamat Malam 🌙';
         }
+
         $website = PengaturanWebsite::first();
 
         return [
+            'nama' => Auth::user()?->name ?? 'Admin',
 
-            'nama' => auth()->user()->name,
-
-            'namaWebsite' => $website?->nama_website,
+            'namaWebsite' => $website?->nama_website ?? 'Tukang Print Dadakan',
 
             'logo' => $website?->logo,
 
             'greeting' => $greeting,
 
-            'tanggal' => now()
+            'tanggal' => $now
+                ->copy()
                 ->locale('id')
                 ->translatedFormat('l, d F Y'),
 
-            'jam' => now()->format('H.i'),
+            'jam' => $now->format('H.i'),
 
-            'pesananHariIni' => Pesanan::whereDate(
-                'created_at',
-                today()
-            )->count(),
+            'pesananHariIni' => Pesanan::query() // Untuk menghitung jumlah pesanan yang dibuat hari ini
+                ->whereDate('created_at', $now->toDateString())
+                ->count(),
 
-            'perluVerifikasi' => Pembayaran::where(
-                'status_pembayaran',
-                'menunggu_verifikasi'
-            )->count(),
+            'perluVerifikasi' => Pesanan::query() // Untuk menghitung jumlah pesanan yang perlu diverifikasi
+                ->where('status_pesanan', 'menunggu_verifikasi')
+                ->count(),
 
-            'pengambilanBesok' => Pesanan::whereDate(
-                'tanggal_pengambilan',
-                today()->addDay()
-            )->count(),
+            'pengambilanBesok' => Pesanan::query() // Untuk menghitung jumlah pesanan yang dijadwalkan untuk pengambilan besok
+                ->whereDate('tanggal_pengambilan', $now->copy()->addDay()->toDateString())
+                ->whereNotIn('status_pesanan', ['selesai', 'dibatalkan'])
+                ->count(),
         ];
     }
 }
