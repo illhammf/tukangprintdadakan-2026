@@ -14,26 +14,48 @@ class LayananTerlaris extends ChartWidget
 
     protected static ?int $sort = 6;
 
-    protected int|string|array $columnSpan = '1/2';
+    protected int|string|array $columnSpan = 1; // Untuk menampilkan widget ini di sebelah kanan, Anda dapat mengubah nilai columnSpan menjadi 1 atau 2 sesuai kebutuhan.
 
     protected function getData(): array
     {
         $layanan = DetailPesanan::query()
             ->join('layanans', 'detail_pesanans.layanan_id', '=', 'layanans.id')
+            ->join('pesanans', 'detail_pesanans.pesanan_id', '=', 'pesanans.id')
+            ->where('pesanans.status_pesanan', '!=', 'dibatalkan')
             ->select(
+                'layanans.id',
                 'layanans.nama_layanan',
                 DB::raw('COUNT(detail_pesanans.id) as total')
             )
-            ->groupBy('layanans.nama_layanan')
+            ->groupBy('layanans.id', 'layanans.nama_layanan')
             ->orderByDesc('total')
             ->limit(5)
             ->get();
+
+        if ($layanan->isEmpty()) {
+            return [
+                'datasets' => [
+                    [
+                        'label' => 'Jumlah Pesanan',
+                        'data' => [1],
+                        'backgroundColor' => [
+                            'rgba(156, 163, 175, 0.30)',
+                        ],
+                        'borderColor' => [
+                            'rgb(156, 163, 175)',
+                        ],
+                        'borderWidth' => 1,
+                    ],
+                ],
+                'labels' => ['Belum ada data'],
+            ];
+        }
 
         return [
             'datasets' => [
                 [
                     'label' => 'Jumlah Pesanan',
-                    'data' => $layanan->pluck('total')->toArray(),
+                    'data' => $layanan->pluck('total')->map(fn ($value) => (int) $value)->toArray(),
                     'backgroundColor' => [
                         'rgba(59, 130, 246, 0.80)',
                         'rgba(34, 197, 94, 0.80)',
