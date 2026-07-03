@@ -6,7 +6,6 @@ use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\Models\Activity;
 
@@ -22,23 +21,13 @@ class LatestAccessLogs extends BaseWidget
 
     protected static ?string $description = 'Pantau aktivitas terbaru yang terjadi pada dashboard admin.';
 
-    protected static function getLogNameColors(): array
-    {
-        return [
-            'primary' => 'resource',
-            'info' => 'access',
-            'warning' => 'model',
-            'success' => 'notification',
-        ];
-    }
-
     public function table(Table $table): Table
     {
         return $table
             ->query(
                 Activity::query()
                     ->with('causer')
-                    ->latest()
+                    ->latest('created_at')
                     ->limit(8)
             )
             ->heading('📝 Aktivitas Terbaru')
@@ -94,13 +83,15 @@ class LatestAccessLogs extends BaseWidget
                     ->label('Data')
                     ->badge()
                     ->color('gray')
-                    ->formatStateUsing(function ($state, Model $record): string {
-                        /** @var Activity $record */
-                        if (! $state) {
+                    ->formatStateUsing(function (?string $state, Activity $record): string {
+                        if (! $state || ! $record->subject_id) {
                             return '-';
                         }
 
-                        $modelName = Str::of($state)->afterLast('\\')->headline();
+                        $modelName = Str::of($state)
+                            ->afterLast('\\')
+                            ->headline()
+                            ->toString();
 
                         return $modelName . ' #' . $record->subject_id;
                     }),
@@ -108,14 +99,13 @@ class LatestAccessLogs extends BaseWidget
                 Tables\Columns\TextColumn::make('causer.name')
                     ->label('User')
                     ->placeholder('Sistem')
-                    ->icon('heroicon-s-user')
-                    ->searchable(),
+                    ->icon('heroicon-s-user'),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Waktu')
-                    ->dateTime('d M Y H:i')
+                    ->since()
                     ->sortable()
-                    ->since(),
+                    ->tooltip(fn (Activity $record): string => $record->created_at?->format('d M Y H:i') ?? '-'),
             ])
             ->actions([])
             ->paginated(false)
