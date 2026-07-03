@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Widgets;
 
 use App\Filament\Admin\Resources\PesananResource;
 use App\Models\Pesanan;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
@@ -19,7 +20,8 @@ class PesananTerbaru extends BaseWidget
         return $table
             ->query(
                 Pesanan::query()
-                    ->with(['detailPesanans', 'pembayaran'])
+                    ->with(['pembayaran'])
+                    ->withCount('detailPesanans')
                     ->latest()
                     ->limit(8)
             )
@@ -39,16 +41,16 @@ class PesananTerbaru extends BaseWidget
                     ->weight('bold')
                     ->description(fn (Pesanan $record): ?string => $record->nomor_whatsapp),
 
-                Tables\Columns\TextColumn::make('detailPesanans_count')
+                Tables\Columns\TextColumn::make('detail_pesanans_count')
                     ->label('Item')
-                    ->counts('detailPesanans')
                     ->badge()
                     ->color('info'),
 
                 Tables\Columns\TextColumn::make('tanggal_pengambilan')
                     ->label('Ambil')
                     ->date('d M Y')
-                    ->sortable(),
+                    ->sortable()
+                    ->placeholder('-'),
 
                 Tables\Columns\TextColumn::make('total_harga')
                     ->label('Total')
@@ -103,15 +105,26 @@ class PesananTerbaru extends BaseWidget
                     ->label('Verifikasi')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
+                    ->requiresConfirmation()
                     ->visible(fn (Pesanan $record): bool => $record->status_pesanan === 'menunggu_verifikasi')
-                    ->action(fn (Pesanan $record) => $record->update([
-                        'status_pesanan' => 'diproses',
-                    ])),
+                    ->action(function (Pesanan $record): void {
+                        $record->ubahStatus(
+                            'diproses',
+                            'Pesanan telah diverifikasi oleh admin dan mulai diproses.'
+                        );
+
+                        Notification::make()
+                            ->title('Pesanan berhasil diverifikasi')
+                            ->success()
+                            ->send();
+                    }),
 
                 Tables\Actions\Action::make('lihat')
                     ->label('Lihat')
                     ->icon('heroicon-o-eye')
-                    ->url(fn (Pesanan $record): string => PesananResource::getUrl('edit', ['record' => $record])),
+                    ->url(fn (Pesanan $record): string => PesananResource::getUrl('edit', [
+                        'record' => $record,
+                    ])),
             ])
             ->paginated(false)
             ->emptyStateHeading('Belum ada pesanan terbaru')
