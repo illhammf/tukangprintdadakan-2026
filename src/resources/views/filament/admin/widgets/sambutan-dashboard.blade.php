@@ -3,9 +3,9 @@
         <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex-1">
                 <h2 class="text-2xl font-bold tracking-tight text-gray-950 dark:text-white md:text-3xl">
-                    👋 Selamat Datang,
+                    Selamat Datang,
                     <span class="text-primary-600">
-                        {{ $nama }}
+                        {{ $nama }} 👋 
                     </span>
                 </h2>
 
@@ -25,17 +25,17 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-center lg:w-40">
+            <div class="flex shrink-0 items-center justify-center lg:w-36">
                 @if ($logo)
                     <img
                         src="{{ Storage::url($logo) }}"
-                        class="h-28 w-28 object-contain md:h-32 md:w-32"
+                        class="h-24 w-24 rounded-full object-contain md:h-28 md:w-28"
                         alt="{{ $namaWebsite ?? 'Tukang Print Dadakan' }}"
                     >
                 @else
                     <img
                         src="{{ asset('images/placeholder.png') }}"
-                        class="h-28 w-28 object-contain md:h-32 md:w-32"
+                        class="h-24 w-24 rounded-full object-contain md:h-28 md:w-28"
                         alt="Logo default"
                     >
                 @endif
