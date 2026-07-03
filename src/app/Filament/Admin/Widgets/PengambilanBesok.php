@@ -16,10 +16,12 @@ class PengambilanBesok extends BaseWidget
 
     public function table(Table $table): Table
     {
+        $now = now(config('app.timezone', 'Asia/Jakarta')); // Untuk memastikan waktu sesuai dengan zona waktu yang diinginkan
+
         return $table
             ->query(
                 Pesanan::query()
-                    ->whereDate('tanggal_pengambilan', today()->addDay())
+                    ->whereDate('tanggal_pengambilan', $now->copy()->addDay()->toDateString())
                     ->whereNotIn('status_pesanan', ['selesai', 'dibatalkan'])
                     ->orderBy('jam_pengambilan')
             )
@@ -41,13 +43,15 @@ class PengambilanBesok extends BaseWidget
 
                 Tables\Columns\TextColumn::make('jam_pengambilan')
                     ->label('Jam')
+                    ->time('H:i')
                     ->badge()
                     ->color('warning'),
 
                 Tables\Columns\TextColumn::make('lokasi_pengambilan')
                     ->label('Lokasi')
                     ->limit(30)
-                    ->wrap(),
+                    ->wrap()
+                    ->placeholder('-'),
 
                 Tables\Columns\TextColumn::make('total_harga')
                     ->label('Total')
@@ -78,7 +82,9 @@ class PengambilanBesok extends BaseWidget
                 Tables\Actions\Action::make('lihat')
                     ->label('Lihat')
                     ->icon('heroicon-o-eye')
-                    ->url(fn (Pesanan $record): string => PesananResource::getUrl('edit', ['record' => $record])),
+                    ->url(fn (Pesanan $record): string => PesananResource::getUrl('edit', [
+                        'record' => $record,
+                    ])),
             ])
             ->paginated(false)
             ->emptyStateHeading('Tidak ada pengambilan besok')
