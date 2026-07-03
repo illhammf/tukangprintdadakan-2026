@@ -110,34 +110,41 @@ class Pesanan extends Model
             if (blank($pesanan->kode_pesanan)) {
                 $tanggal = now()->format('Ymd');
 
-                $nomorUrut = Pesanan::whereDate('created_at', today())->count() + 1;
+                $jumlahPesananHariIni = self::whereDate('created_at', today())->count() + 1;
 
-                $pesanan->kode_pesanan = 'TPD-' . $tanggal . '-' . str_pad($nomorUrut, 4, '0', STR_PAD_LEFT);
+                $pesanan->kode_pesanan = 'TPD-' . $tanggal . '-' . str_pad($jumlahPesananHariIni, 4, '0', STR_PAD_LEFT);
             }
 
             if (blank($pesanan->tanggal_pesan)) {
                 $pesanan->tanggal_pesan = now();
             }
+
+            if (blank($pesanan->status_pesanan)) {
+                $pesanan->status_pesanan = 'menunggu_verifikasi';
+            }
         });
 
         static::created(function (Pesanan $pesanan) {
             $pesanan->riwayatStatusPesanans()->create([
-                'status' => $pesanan->status_pesanan,
+                'status' => $pesanan->status_pesanan ?? 'menunggu_verifikasi',
                 'catatan' => 'Pesanan berhasil dibuat.',
                 'waktu_status' => now(),
             ]);
 
+            $metodePengiriman = match ($pesanan->lokasi_pengambilan) {
+                'Ojek Online' => 'ojek_online',
+                'Diantar' => 'antar',
+                default => 'ambil_di_kampus',
+            };
+
+            $biayaPengiriman = $pesanan->lokasi_pengambilan === 'Diantar' ? 5000 : 0;
+
             $pesanan->pengiriman()->create([
-                'metode_pengiriman' => match ($pesanan->lokasi_pengambilan) {
-                    'Ojek Online' => 'ojek_online',
-                    'Diantar' => 'antar',
-                    default => 'ambil_di_kampus',
-                },
-                'biaya_pengiriman' => match ($pesanan->lokasi_pengambilan) {
-                    'Diantar' => 5000,
-                    default => 0,
-                },
+                'metode_pengiriman' => $metodePengiriman,
+                'alamat_pengiriman' => $pesanan->detail_lokasi,
+                'biaya_pengiriman' => $biayaPengiriman,
                 'status_pengiriman' => 'belum_dikirim',
+                'catatan_pengiriman' => null,
             ]);
 
             $pesanan->updateRingkasanBiaya();
@@ -145,19 +152,20 @@ class Pesanan extends Model
 
         static::updated(function (Pesanan $pesanan) {
             if ($pesanan->wasChanged('lokasi_pengambilan')) {
+                $metodePengiriman = match ($pesanan->lokasi_pengambilan) {
+                    'Ojek Online' => 'ojek_online',
+                    'Diantar' => 'antar',
+                    default => 'ambil_di_kampus',
+                };
+
+                $biayaPengiriman = $pesanan->lokasi_pengambilan === 'Diantar' ? 5000 : 0;
+
                 $pesanan->pengiriman()->updateOrCreate(
                     ['pesanan_id' => $pesanan->id],
                     [
-                        'metode_pengiriman' => match ($pesanan->lokasi_pengambilan) {
-                            'Ojek Online' => 'ojek_online',
-                            'Diantar' => 'antar',
-                            default => 'ambil_di_kampus',
-                        },
-                        'biaya_pengiriman' => match ($pesanan->lokasi_pengambilan) {
-                            'Diantar' => 5000,
-                            default => 0,
-                        },
-                        'status_pengiriman' => 'belum_dikirim',
+                        'metode_pengiriman' => $metodePengiriman,
+                        'alamat_pengiriman' => $pesanan->detail_lokasi,
+                        'biaya_pengiriman' => $biayaPengiriman,
                     ]
                 );
 
