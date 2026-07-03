@@ -3,7 +3,6 @@
 namespace App\Filament\Admin\Widgets;
 
 use App\Models\Pembayaran;
-use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 
 class RingkasanPendapatan extends ChartWidget
@@ -18,16 +17,19 @@ class RingkasanPendapatan extends ChartWidget
 
     protected function getData(): array
     {
+        $now = now(config('app.timezone', 'Asia/Jakarta'));
+
         $labels = [];
         $data = [];
 
         foreach (range(6, 0) as $day) {
-            $tanggal = Carbon::today()->subDays($day);
+            $tanggal = $now->copy()->subDays($day);
 
-            $labels[] = $tanggal->translatedFormat('d M');
+            $labels[] = $tanggal->copy()->locale('id')->translatedFormat('d M');
 
-            $data[] = (int) Pembayaran::where('status_pembayaran', 'lunas')
-                ->whereDate('tanggal_bayar', $tanggal)
+            $data[] = (int) Pembayaran::query()
+                ->where('status_pembayaran', 'lunas')
+                ->whereDate('tanggal_bayar', $tanggal->toDateString())
                 ->sum('jumlah_bayar');
         }
 
@@ -89,33 +91,45 @@ class RingkasanPendapatan extends ChartWidget
 
     private function pendapatanHariIni(): int
     {
-        return (int) Pembayaran::where('status_pembayaran', 'lunas')
-            ->whereDate('tanggal_bayar', today())
+        $now = now(config('app.timezone', 'Asia/Jakarta'));
+
+        return (int) Pembayaran::query()
+            ->where('status_pembayaran', 'lunas')
+            ->whereDate('tanggal_bayar', $now->toDateString())
             ->sum('jumlah_bayar');
     }
 
     private function pendapatanKemarin(): int
     {
-        return (int) Pembayaran::where('status_pembayaran', 'lunas')
-            ->whereDate('tanggal_bayar', today()->subDay())
+        $now = now(config('app.timezone', 'Asia/Jakarta'));
+
+        return (int) Pembayaran::query()
+            ->where('status_pembayaran', 'lunas')
+            ->whereDate('tanggal_bayar', $now->copy()->subDay()->toDateString())
             ->sum('jumlah_bayar');
     }
 
     private function pendapatanMingguIni(): int
     {
-        return (int) Pembayaran::where('status_pembayaran', 'lunas')
+        $now = now(config('app.timezone', 'Asia/Jakarta'));
+
+        return (int) Pembayaran::query()
+            ->where('status_pembayaran', 'lunas')
             ->whereBetween('tanggal_bayar', [
-                now()->startOfWeek(),
-                now()->endOfWeek(),
+                $now->copy()->startOfWeek(),
+                $now->copy()->endOfWeek(),
             ])
             ->sum('jumlah_bayar');
     }
 
     private function pendapatanBulanIni(): int
     {
-        return (int) Pembayaran::where('status_pembayaran', 'lunas')
-            ->whereMonth('tanggal_bayar', now()->month)
-            ->whereYear('tanggal_bayar', now()->year)
+        $now = now(config('app.timezone', 'Asia/Jakarta'));
+
+        return (int) Pembayaran::query()
+            ->where('status_pembayaran', 'lunas')
+            ->whereMonth('tanggal_bayar', $now->month)
+            ->whereYear('tanggal_bayar', $now->year)
             ->sum('jumlah_bayar');
     }
 }
