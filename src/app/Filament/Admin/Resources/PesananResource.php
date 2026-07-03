@@ -123,7 +123,7 @@ class PesananResource extends Resource
                             ->default('menunggu_verifikasi')
                             ->native(false)
                             ->disabled()
-                            ->dehydrated(false)
+                            ->dehydrated()
                             ->helperText('Status pesanan diubah melalui tombol aksi agar riwayat status tercatat.'),
 
                         Forms\Components\Textarea::make('detail_lokasi')
