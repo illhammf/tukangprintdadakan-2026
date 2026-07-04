@@ -212,6 +212,7 @@
                         </p>
                     </div>
                 @empty
+                
                     <div class="info-card">
                         <h3>Belum ada kategori aktif</h3>
                         <p>Kategori layanan aktif akan tampil pada bagian ini.</p>
