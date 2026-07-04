@@ -15,6 +15,13 @@
         $logoUrl = $website?->logo
             ? \Illuminate\Support\Facades\Storage::url($website->logo)
             : asset('images/placeholder.png');
+
+        $nomorWhatsapp = $website?->nomor_whatsapp;
+        $nomorWhatsappClean = $nomorWhatsapp ? preg_replace('/[^0-9]/', '', $nomorWhatsapp) : null;
+
+        if ($nomorWhatsappClean && str_starts_with($nomorWhatsappClean, '0')) {
+            $nomorWhatsappClean = '62' . substr($nomorWhatsappClean, 1);
+        }
     @endphp
 
     <header class="site-header">
@@ -24,21 +31,41 @@
                 <span>{{ $namaWebsite }}</span>
             </a>
 
-            <button class="nav-toggle" type="button" aria-label="Buka navigasi">
-                ☰
+            <button class="nav-toggle" type="button" aria-label="Buka menu">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
 
             <nav class="site-nav" id="siteNav">
-                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
-                <a href="{{ route('tentang') }}" class="{{ request()->routeIs('tentang') ? 'active' : '' }}">Tentang Kami</a>
-                <a href="{{ route('layanan.index') }}" class="{{ request()->routeIs('layanan.*') ? 'active' : '' }}">Layanan</a>
-                <a href="{{ route('kontak.index') }}" class="{{ request()->routeIs('kontak.*') ? 'active' : '' }}">Kontak</a>
+                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">
+                    Beranda
+                </a>
+
+                <a href="{{ route('tentang') }}" class="{{ request()->routeIs('tentang') ? 'active' : '' }}">
+                    Tentang Kami
+                </a>
+
+                <a href="{{ route('layanan.index') }}" class="{{ request()->routeIs('layanan.*') ? 'active' : '' }}">
+                    Layanan
+                </a>
+
+                <a href="{{ route('kontak.index') }}" class="{{ request()->routeIs('kontak.*') ? 'active' : '' }}">
+                    Kontak
+                </a>
 
                 @auth
-                    <a href="{{ route('customer.dashboard') }}" class="btn-nav">Dashboard</a>
+                    <a href="{{ route('customer.dashboard') }}" class="btn-nav">
+                        Dashboard
+                    </a>
                 @else
-                    <a href="{{ route('login') }}" class="btn-nav ghost">Login</a>
-                    <a href="{{ route('register') }}" class="btn-nav">Registrasi</a>
+                    <a href="{{ route('login') }}" class="btn-nav ghost">
+                        Login
+                    </a>
+
+                    <a href="{{ route('register') }}" class="btn-nav">
+                        Registrasi
+                    </a>
                 @endauth
             </nav>
         </div>
@@ -64,6 +91,17 @@
         @yield('content')
     </main>
 
+    @if ($nomorWhatsappClean)
+        <a
+            href="https://wa.me/{{ $nomorWhatsappClean }}"
+            target="_blank"
+            class="floating-wa"
+            aria-label="Hubungi WhatsApp"
+        >
+            WA
+        </a>
+    @endif
+
     <footer class="site-footer">
         <div class="container footer-grid">
             <div>
@@ -73,7 +111,7 @@
                 </div>
 
                 <p class="footer-text">
-                    Layanan cetak mahasiswa berbasis web untuk pemesanan print, fotokopi, jilid, laminating, dan kebutuhan dokumen lainnya.
+                    Sistem pemesanan layanan cetak mahasiswa berbasis web untuk print dokumen, fotokopi, jilid, laminating, dan kebutuhan dokumen lainnya.
                 </p>
             </div>
 
