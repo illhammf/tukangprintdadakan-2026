@@ -55,9 +55,23 @@
                 </a>
 
                 @auth
-                    <a href="{{ route('customer.dashboard') }}" class="btn-nav">
-                        Dashboard
-                    </a>
+                    <div class="user-nav">
+                        <span class="user-greeting">
+                            Halo, {{ \Illuminate\Support\Str::limit(auth()->user()->name, 18) }}
+                        </span>
+
+                        <a href="{{ route('customer.dashboard') }}" class="btn-nav">
+                            Dashboard
+                        </a>
+
+                        <form action="{{ route('logout') }}" method="POST" class="logout-form">
+                            @csrf
+
+                            <button type="submit" class="btn-nav danger">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
                 @else
                     <a href="{{ route('login') }}" class="btn-nav ghost">
                         Login
