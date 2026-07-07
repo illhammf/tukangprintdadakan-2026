@@ -986,3 +986,48 @@ select {
         font-size: 26px;
     }
 }
+
+.user-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-greeting {
+    padding: 9px 14px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: var(--primary);
+    font-weight: 900;
+    font-size: 14px;
+}
+
+.logout-form {
+    margin: 0;
+}
+
+.btn-nav.danger {
+    background: #dc2626;
+    color: #ffffff !important;
+    border-color: #dc2626;
+}
+
+.btn-nav.danger:hover {
+    background: #b91c1c;
+}
+
+@media (max-width: 900px) {
+    .user-nav {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .logout-form,
+    .logout-form button {
+        width: 100%;
+    }
+
+    .user-greeting {
+        text-align: center;
+    }
+}
