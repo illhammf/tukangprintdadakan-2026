@@ -15,11 +15,19 @@ class Pembayaran extends Model
         'bukti_pembayaran',
         'status_pembayaran',
         'tanggal_bayar',
+        'midtrans_order_id',
+        'snap_token',
+        'snap_redirect_url',
+        'transaction_id',
+        'payment_type',
+        'fraud_status',
+        'midtrans_response',
     ];
 
     protected $casts = [
         'jumlah_bayar' => 'decimal:2',
         'tanggal_bayar' => 'datetime',
+        'midtrans_response' => 'array',
     ];
 
     protected static function booted(): void

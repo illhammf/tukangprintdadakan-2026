@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\PengaturanWebsite;
+use App\Services\MidtransService;
 
 class PesananController extends Controller
 {
@@ -177,7 +178,7 @@ class PesananController extends Controller
                 'pesanan_id' => $pesanan->id,
                 'metode_pembayaran' => $validated['metode_pembayaran'],
                 'channel_pembayaran' => $validated['metode_pembayaran'] === 'transfer'
-                    ? ($validated['channel_pembayaran'] ?? null)
+                    ? 'Midtrans'
                     : null,
                 'jumlah_bayar' => $pesanan->total_harga,
                 'status_pembayaran' => 'belum_bayar',
@@ -188,6 +189,18 @@ class PesananController extends Controller
         });
 
         $pesanan->load(['detailPesanans.layanan', 'pembayaran']);
+
+        if ($pesanan->pembayaran?->metode_pembayaran === 'transfer') {
+            $transaction = app(MidtransService::class)->createSnapTransaction($pesanan);
+
+            if (! empty($transaction->redirect_url)) {
+                return redirect()->away($transaction->redirect_url);
+            }
+
+            return redirect()
+                ->route('customer.pesanan.show', $pesanan)
+                ->with('error', 'Pesanan berhasil dibuat, tetapi halaman pembayaran Midtrans belum tersedia.');
+        }
 
         $website = PengaturanWebsite::query()->first();
 
