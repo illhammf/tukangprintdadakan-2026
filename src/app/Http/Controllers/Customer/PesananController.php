@@ -3,6 +3,15 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\HariLibur;
+use App\Models\Layanan;
+use App\Models\Pembayaran;
+use App\Models\PengaturanBooking;
+use App\Models\Pesanan;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PesananController extends Controller
 {
@@ -11,23 +20,254 @@ class PesananController extends Controller
         return view('customer.pesanan.index');
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('customer.pesanan.create');
+        $layanans = Layanan::query()
+            ->with('kategoriLayanan')
+            ->where('status', true)
+            ->where('bisa_online', true)
+            ->whereHas('kategoriLayanan', fn ($query) => $query->where('status', true))
+            ->orderBy('nama_layanan')
+            ->get();
+
+        $pengaturanBooking = PengaturanBooking::query()
+            ->where('nama_pengaturan', 'Default Booking')
+            ->first() ?? PengaturanBooking::query()->first();
+
+        $selectedLayanan = null;
+
+        if ($request->filled('layanan')) {
+            $selectedLayanan = $layanans->firstWhere('id', (int) $request->layanan);
+        }
+
+        return view('customer.pesanan.create', compact(
+            'layanans',
+            'pengaturanBooking',
+            'selectedLayanan'
+        ));
     }
 
-    public function store()
+    public function store(Request $request)
     {
-        abort(501, 'Fitur simpan pesanan akan dibuat pada tahap form pesanan.');
+        $validated = $request->validate([
+            'layanan_id' => ['required', 'exists:layanans,id'],
+            'files' => ['required', 'array', 'max:5'],
+            'files.*' => ['required', 'file', 'mimes:pdf,doc,docx,ppt,pptx,jpg,jpeg,png', 'max:20480'],
+
+            'jenis_print' => ['nullable', 'in:hitam_putih,warna'],
+            'ukuran_kertas' => ['required', 'string', 'max:20'],
+            'jumlah_halaman' => ['required', 'integer', 'min:1'],
+            'jumlah_copy' => ['required', 'integer', 'min:1'],
+
+            'pakai_jilid' => ['nullable', 'boolean'],
+            'pakai_laminating' => ['nullable', 'boolean'],
+
+            'tanggal_pengambilan' => ['required', 'date'],
+            'jam_pengambilan' => ['required', 'date_format:H:i'],
+            'lokasi_pengambilan' => ['required', 'string', 'max:100'],
+            'detail_lokasi' => ['nullable', 'string', 'max:500'],
+
+            'catatan' => ['nullable', 'string', 'max:1000'],
+            'catatan_detail' => ['nullable', 'string', 'max:1000'],
+
+            'metode_pembayaran' => ['required', 'in:cash,transfer'],
+            'channel_pembayaran' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $layanan = Layanan::query()
+            ->where('status', true)
+            ->where('bisa_online', true)
+            ->whereHas('kategoriLayanan', fn ($query) => $query->where('status', true))
+            ->findOrFail($validated['layanan_id']);
+
+        $pengaturanBooking = PengaturanBooking::query()
+            ->where('nama_pengaturan', 'Default Booking')
+            ->first() ?? PengaturanBooking::query()->first();
+
+        $this->validateUploadTotalSize($request);
+
+        $this->validateBookingRules(
+            $validated,
+            $pengaturanBooking,
+            count($request->file('files', []))
+        );
+
+        $pesanan = DB::transaction(function () use ($request, $validated, $layanan, $pengaturanBooking) {
+            $user = Auth::user();
+
+            $pesanan = Pesanan::query()->create([
+                'user_id' => $user->id,
+                'nama_pelanggan' => $user->name,
+                'email' => $user->email,
+                'nomor_whatsapp' => $user->nomor_whatsapp,
+                'tanggal_pesan' => now(),
+                'tanggal_pengambilan' => $validated['tanggal_pengambilan'],
+                'jam_pengambilan' => $validated['jam_pengambilan'],
+                'lokasi_pengambilan' => $validated['lokasi_pengambilan'],
+                'detail_lokasi' => $validated['detail_lokasi'] ?? null,
+                'catatan' => $validated['catatan'] ?? null,
+                'biaya_tambahan' => 0,
+                'biaya_pengiriman' => $validated['lokasi_pengambilan'] === 'Diantar'
+                    ? (float) ($pengaturanBooking?->ongkir_kampus ?? 0)
+                    : 0,
+                'status_pesanan' => 'menunggu_verifikasi',
+            ]);
+
+            foreach ($request->file('files', []) as $file) {
+                $filePath = $file->store('pesanan/' . $pesanan->kode_pesanan, 'public');
+
+                $hargaSatuan = (float) $layanan->harga_dasar;
+
+                $subtotal = $hargaSatuan
+                    * (int) $validated['jumlah_halaman']
+                    * (int) $validated['jumlah_copy'];
+
+                if ($request->boolean('pakai_jilid')) {
+                    $subtotal += (float) ($pengaturanBooking?->biaya_jilid ?? 0);
+                }
+
+                if ($request->boolean('pakai_laminating')) {
+                    $subtotal += (float) ($pengaturanBooking?->biaya_laminating ?? 0);
+                }
+
+                $pesanan->detailPesanans()->create([
+                    'layanan_id' => $layanan->id,
+                    'nama_file' => $file->getClientOriginalName(),
+                    'file_path' => $filePath,
+                    'jenis_print' => $validated['jenis_print'] ?? null,
+                    'ukuran_kertas' => $validated['ukuran_kertas'],
+                    'jumlah_halaman' => $validated['jumlah_halaman'],
+                    'jumlah_copy' => $validated['jumlah_copy'],
+                    'harga_satuan' => $hargaSatuan,
+                    'subtotal' => $subtotal,
+                    'pakai_jilid' => $request->boolean('pakai_jilid'),
+                    'pakai_laminating' => $request->boolean('pakai_laminating'),
+                    'catatan_detail' => $validated['catatan_detail'] ?? null,
+                ]);
+            }
+
+            $pesanan->updateRingkasanBiaya();
+            $pesanan->refresh();
+
+            Pembayaran::query()->create([
+                'pesanan_id' => $pesanan->id,
+                'metode_pembayaran' => $validated['metode_pembayaran'],
+                'channel_pembayaran' => $validated['metode_pembayaran'] === 'transfer'
+                    ? ($validated['channel_pembayaran'] ?? null)
+                    : null,
+                'jumlah_bayar' => $pesanan->total_harga,
+                'status_pembayaran' => 'belum_bayar',
+                'tanggal_bayar' => null,
+            ]);
+
+            return $pesanan;
+        });
+
+        return redirect()
+            ->route('customer.pesanan.show', $pesanan)
+            ->with('success', 'Pesanan berhasil dibuat. Silakan pantau status pesanan secara berkala.');
     }
 
-    public function show()
+    public function show(Pesanan $pesanan)
     {
-        return view('customer.pesanan.show');
+        abort_if($pesanan->user_id !== Auth::id(), 403);
+
+        $pesanan->load([
+            'detailPesanans.layanan',
+            'pembayaran',
+            'pengiriman',
+            'riwayatStatusPesanans' => fn ($query) => $query->latest('waktu_status'),
+        ]);
+
+        return view('customer.pesanan.show', compact('pesanan'));
     }
 
-    public function cancel()
+    public function cancel(Pesanan $pesanan)
     {
-        abort(501, 'Fitur pembatalan pesanan akan dibuat pada tahap detail pesanan.');
+        abort_if($pesanan->user_id !== Auth::id(), 403);
+
+        if ($pesanan->status_pesanan !== 'menunggu_verifikasi') {
+            return back()->with('error', 'Pesanan tidak dapat dibatalkan karena sudah diproses.');
+        }
+
+        $pesanan->ubahStatus('dibatalkan', 'Pesanan dibatalkan oleh pelanggan.');
+
+        return back()->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
+    private function validateUploadTotalSize(Request $request): void
+    {
+        $totalSize = collect($request->file('files', []))
+            ->sum(fn ($file) => $file->getSize());
+
+        $maxTotalSize = 50 * 1024 * 1024;
+
+        if ($totalSize > $maxTotalSize) {
+            back()
+                ->withErrors([
+                    'files' => 'Total ukuran seluruh file maksimal 50 MB.',
+                ])
+                ->throwResponse();
+        }
+    }
+
+    private function validateBookingRules(array $validated, ?PengaturanBooking $pengaturanBooking, int $jumlahFile): void
+    {
+        $tanggalPengambilan = Carbon::parse($validated['tanggal_pengambilan'])->startOfDay();
+        $hariIni = now(config('app.timezone', 'Asia/Jakarta'))->startOfDay();
+
+        if ($pengaturanBooking?->wajib_h_minus_satu && $tanggalPengambilan->lessThanOrEqualTo($hariIni)) {
+            back()
+                ->withErrors([
+                    'tanggal_pengambilan' => 'Tanggal pengambilan minimal H-1 dari tanggal pemesanan.',
+                ])
+                ->throwResponse();
+        }
+
+        if ($pengaturanBooking?->tutup_sabtu && $tanggalPengambilan->isSaturday()) {
+            back()
+                ->withErrors([
+                    'tanggal_pengambilan' => 'Tanggal pengambilan tidak tersedia pada hari Sabtu.',
+                ])
+                ->throwResponse();
+        }
+
+        if ($pengaturanBooking?->tutup_minggu && $tanggalPengambilan->isSunday()) {
+            back()
+                ->withErrors([
+                    'tanggal_pengambilan' => 'Tanggal pengambilan tidak tersedia pada hari Minggu.',
+                ])
+                ->throwResponse();
+        }
+
+        if ($pengaturanBooking?->tutup_tanggal_merah) {
+            $hariLibur = HariLibur::query()
+                ->whereDate('tanggal', $tanggalPengambilan->toDateString())
+                ->where('status', true)
+                ->exists();
+
+            if ($hariLibur) {
+                back()
+                    ->withErrors([
+                        'tanggal_pengambilan' => 'Tanggal pengambilan tidak tersedia karena termasuk hari libur.',
+                    ])
+                    ->throwResponse();
+            }
+        }
+
+        $totalLembar = (int) $validated['jumlah_halaman']
+            * (int) $validated['jumlah_copy']
+            * $jumlahFile;
+
+        if (
+            $pengaturanBooking?->maksimal_lembar_per_order
+            && $totalLembar > $pengaturanBooking->maksimal_lembar_per_order
+        ) {
+            back()
+                ->withErrors([
+                    'jumlah_halaman' => 'Total lembar melebihi batas maksimal per pesanan.',
+                ])
+                ->throwResponse();
+        }
     }
 }
