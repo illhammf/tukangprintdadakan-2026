@@ -1,4 +1,4 @@
-@extends('layouts.public')
+@extends('layouts.customer')
 
 @section('title', 'Dashboard Pelanggan - Tukang Print Dadakan')
 
