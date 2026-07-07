@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\PengaturanWebsite;
 
 class PesananController extends Controller
 {
@@ -186,6 +187,19 @@ class PesananController extends Controller
             return $pesanan;
         });
 
+        $pesanan->load(['detailPesanans.layanan', 'pembayaran']);
+
+        $website = PengaturanWebsite::query()->first();
+
+        $whatsappUrl = $this->buildAdminWhatsappUrl(
+            $website?->nomor_whatsapp,
+            $this->buildPesananWhatsappMessage($pesanan)
+        );
+
+        if ($whatsappUrl) {
+            return redirect()->away($whatsappUrl);
+        }
+
         return redirect()
             ->route('customer.pesanan.show', $pesanan)
             ->with('success', 'Pesanan berhasil dibuat. Silakan pantau status pesanan secara berkala.');
@@ -292,5 +306,81 @@ class PesananController extends Controller
                 ])
                 ->throwResponse();
         }
+    }
+
+    private function buildPesananWhatsappMessage(Pesanan $pesanan): string
+    {
+        $detailText = $pesanan->detailPesanans
+            ->map(function ($detail, int $index) {
+                $nomor = $index + 1;
+
+                $jenisPrint = match ($detail->jenis_print) {
+                    'hitam_putih' => 'Hitam Putih',
+                    'warna' => 'Warna',
+                    default => '-',
+                };
+
+                return "{$nomor}. {$detail->nama_file}\n"
+                    . "   Layanan: " . ($detail->layanan?->nama_layanan ?? '-') . "\n"
+                    . "   Jenis Print: {$jenisPrint}\n"
+                    . "   Ukuran: {$detail->ukuran_kertas}\n"
+                    . "   Halaman: {$detail->jumlah_halaman}\n"
+                    . "   Copy: {$detail->jumlah_copy}\n"
+                    . "   Jilid: " . ($detail->pakai_jilid ? 'Ya' : 'Tidak') . "\n"
+                    . "   Laminating: " . ($detail->pakai_laminating ? 'Ya' : 'Tidak') . "\n"
+                    . "   Subtotal: Rp " . number_format((float) $detail->subtotal, 0, ',', '.');
+            })
+            ->implode("\n\n");
+
+        $adminUrl = url('/admin/pesanans/' . $pesanan->id . '/edit');
+
+        return "Halo Admin Tukang Print Dadakan.\n\n"
+            . "Ada pesanan baru masuk.\n\n"
+            . "Kode Pesanan: {$pesanan->kode_pesanan}\n"
+            . "Nama: {$pesanan->nama_pelanggan}\n"
+            . "Email: " . ($pesanan->email ?? '-') . "\n"
+            . "WhatsApp: " . ($pesanan->nomor_whatsapp ?? '-') . "\n\n"
+            . "Tanggal Pesan: " . ($pesanan->tanggal_pesan?->format('d M Y') ?? '-') . "\n"
+            . "Tanggal Pengambilan: " . ($pesanan->tanggal_pengambilan?->format('d M Y') ?? '-') . "\n"
+            . "Jam Pengambilan: " . ($pesanan->jam_pengambilan?->format('H:i') ?? '-') . "\n"
+            . "Lokasi: " . ($pesanan->lokasi_pengambilan ?? '-') . "\n"
+            . "Detail Lokasi: " . ($pesanan->detail_lokasi ?? '-') . "\n\n"
+            . "Detail File:\n"
+            . ($detailText ?: '-') . "\n\n"
+            . "Total Estimasi: Rp " . number_format((float) $pesanan->total_harga, 0, ',', '.') . "\n"
+            . "Metode Pembayaran: " . ucfirst($pesanan->pembayaran?->metode_pembayaran ?? '-') . "\n\n"
+            . "Catatan Pesanan:\n"
+            . ($pesanan->catatan ?? '-') . "\n\n"
+            . "Link Admin:\n{$adminUrl}";
+    }
+
+    private function buildAdminWhatsappUrl(?string $nomorWhatsapp, string $message): ?string
+    {
+        $nomor = $this->normalizeWhatsappNumber($nomorWhatsapp);
+
+        if (! $nomor) {
+            return null;
+        }
+
+        return 'https://wa.me/' . $nomor . '?text=' . urlencode($message);
+    }
+
+    private function normalizeWhatsappNumber(?string $nomorWhatsapp): ?string
+    {
+        if (! $nomorWhatsapp) {
+            return null;
+        }
+
+        $nomor = preg_replace('/[^0-9]/', '', $nomorWhatsapp);
+
+        if (! $nomor) {
+            return null;
+        }
+
+        if (str_starts_with($nomor, '0')) {
+            return '62' . substr($nomor, 1);
+        }
+
+        return $nomor;
     }
 }
