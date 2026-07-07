@@ -1808,3 +1808,74 @@ select {
         width: 100%;
     }
 }
+
+/* tambahan css untuk profil saya */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.profile-summary-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 26px;
+    padding: 26px;
+    box-shadow: var(--shadow);
+}
+
+.profile-avatar.large {
+    width: 72px;
+    height: 72px;
+    border-radius: 24px;
+    font-size: 30px;
+    margin-bottom: 18px;
+}
+
+.profile-summary-card h3 {
+    margin: 0 0 6px;
+    font-size: 24px;
+}
+
+.profile-summary-card p {
+    margin: 0 0 6px;
+    color: var(--muted);
+}
+
+.profile-meta {
+    display: grid;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.profile-meta div {
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: #f8fafc;
+}
+
+.profile-meta span {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.profile-meta strong {
+    display: block;
+    margin-top: 3px;
+}
+
+.form-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 6px 0;
+}
+
+@media (max-width: 900px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+}
