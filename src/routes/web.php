@@ -10,6 +10,7 @@ use App\Http\Controllers\Frontend\LayananController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
 use App\Http\Controllers\Payment\MidtransWebhookController;
+use App\Http\Controllers\Payment\MidtransReturnController;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,3 +90,6 @@ Route::post('/midtrans/notification', [MidtransWebhookController::class, 'handle
         \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
     ])
     ->name('midtrans.notification');
+
+Route::get('/midtrans/finish', [MidtransReturnController::class, 'finish'])
+    ->name('midtrans.finish');
