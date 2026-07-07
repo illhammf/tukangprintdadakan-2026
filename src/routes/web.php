@@ -9,6 +9,7 @@ use App\Http\Controllers\Frontend\KontakController;
 use App\Http\Controllers\Frontend\LayananController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Livewire;
+use App\Http\Controllers\Payment\MidtransWebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,3 +83,9 @@ Route::middleware('auth')
         Route::get('/pesanan/{pesanan}', [PesananController::class, 'show'])->name('pesanan.show');
         Route::patch('/pesanan/{pesanan}/batal', [PesananController::class, 'cancel'])->name('pesanan.cancel');
     });
+
+Route::post('/midtrans/notification', [MidtransWebhookController::class, 'handle'])
+    ->withoutMiddleware([
+        \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+    ])
+    ->name('midtrans.notification');
