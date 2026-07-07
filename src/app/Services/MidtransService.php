@@ -30,11 +30,13 @@ class MidtransService
                 'order_id' => $midtransOrderId,
                 'gross_amount' => (int) round($pesanan->total_harga),
             ],
+
             'customer_details' => [
                 'first_name' => $pesanan->nama_pelanggan,
                 'email' => $pesanan->email,
                 'phone' => $pesanan->nomor_whatsapp,
             ],
+
             'item_details' => [
                 [
                     'id' => $pesanan->kode_pesanan,
@@ -42,6 +44,10 @@ class MidtransService
                     'quantity' => 1,
                     'name' => 'Pembayaran ' . $pesanan->kode_pesanan,
                 ],
+            ],
+
+            'callbacks' => [
+                'finish' => route('midtrans.finish'),
             ],
         ];
 
