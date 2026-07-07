@@ -1658,3 +1658,153 @@ select {
         grid-template-columns: 1fr;
     }
 }
+
+/* tambaha n css untuk pesanan saya */
+.page-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.section-title.compact {
+    margin-bottom: 0;
+}
+
+.filter-panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 20px;
+    margin-bottom: 22px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.filter-form {
+    display: grid;
+    grid-template-columns: 1fr 260px auto;
+    gap: 14px;
+    align-items: end;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.order-list {
+    display: grid;
+    gap: 18px;
+}
+
+.order-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 22px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.order-card-main {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.order-code {
+    display: inline-flex;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: var(--primary);
+    font-weight: 900;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.order-card h3 {
+    margin: 0 0 8px;
+    font-size: 24px;
+}
+
+.order-card p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.order-card-status {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.payment-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 900;
+    background: #f1f5f9;
+    color: #334155;
+}
+
+.order-card-footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding-top: 18px;
+}
+
+.order-card-footer span {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.order-card-footer strong {
+    display: block;
+    margin-top: 3px;
+}
+
+@media (max-width: 900px) {
+    .page-row {
+        flex-direction: column;
+    }
+
+    .filter-form {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-actions {
+        flex-direction: column;
+    }
+
+    .filter-actions .btn-primary,
+    .filter-actions .btn-outline {
+        width: 100%;
+    }
+
+    .order-card-main {
+        flex-direction: column;
+    }
+
+    .order-card-status {
+        align-items: flex-start;
+    }
+
+    .order-card-footer {
+        grid-template-columns: 1fr;
+    }
+
+    .order-card-footer .btn-outline {
+        width: 100%;
+    }
+}
