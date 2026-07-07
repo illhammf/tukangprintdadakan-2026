@@ -91,5 +91,5 @@ Route::post('/midtrans/notification', [MidtransWebhookController::class, 'handle
     ])
     ->name('midtrans.notification');
 
-Route::get('/midtrans/finish', [MidtransReturnController::class, 'finish'])
+Route::get('/midtrans/finish/{pesanan?}', [MidtransReturnController::class, 'finish'])
     ->name('midtrans.finish');

@@ -4,31 +4,37 @@ namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pembayaran;
+use App\Models\Pesanan;
 use Illuminate\Http\Request;
 use Midtrans\Config;
 use Midtrans\Transaction;
 
 class MidtransReturnController extends Controller
 {
-    public function finish(Request $request)
+    public function finish(Request $request, ?Pesanan $pesanan = null)
     {
         $orderId = $request->query('order_id');
 
-        if (! $orderId) {
-            return redirect()
-                ->route('customer.pesanan.index')
-                ->with('error', 'Order ID pembayaran tidak ditemukan.');
+        $pembayaran = null;
+
+        if ($orderId) {
+            $pembayaran = Pembayaran::query()
+                ->with('pesanan')
+                ->where('midtrans_order_id', $orderId)
+                ->first();
         }
 
-        $pembayaran = Pembayaran::query()
-            ->with('pesanan')
-            ->where('midtrans_order_id', $orderId)
-            ->first();
+        if (! $pembayaran && $pesanan) {
+            $pesanan->load('pembayaran');
 
-        if (! $pembayaran) {
+            $pembayaran = $pesanan->pembayaran;
+            $orderId = $pembayaran?->midtrans_order_id;
+        }
+
+        if (! $pembayaran || ! $orderId) {
             return redirect()
                 ->route('customer.pesanan.index')
-                ->with('error', 'Data pembayaran tidak ditemukan.');
+                ->with('error', 'Data pembayaran Midtrans tidak ditemukan. Silakan cek detail pesanan atau hubungi admin.');
         }
 
         $this->configureMidtrans();
@@ -38,7 +44,7 @@ class MidtransReturnController extends Controller
         } catch (\Throwable $exception) {
             return redirect()
                 ->route('customer.pesanan.show', $pembayaran->pesanan)
-                ->with('error', 'Pembayaran berhasil kembali dari Midtrans, tetapi status belum dapat diverifikasi. Silakan cek beberapa saat lagi.');
+                ->with('error', 'Status pembayaran belum dapat diverifikasi dari Midtrans. Silakan cek beberapa saat lagi.');
         }
 
         $statusArray = json_decode(json_encode($status), true);
