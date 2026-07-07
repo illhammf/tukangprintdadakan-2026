@@ -15,9 +15,32 @@ use Illuminate\Support\Facades\DB;
 
 class PesananController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('customer.pesanan.index');
+        $query = Pesanan::query()
+            ->where('user_id', Auth::id())
+            ->with(['pembayaran'])
+            ->latest();
+
+        if ($request->filled('status')) {
+            $query->where('status_pesanan', $request->status);
+        }
+
+        if ($request->filled('q')) {
+            $keyword = $request->q;
+
+            $query->where(function ($subQuery) use ($keyword) {
+                $subQuery
+                    ->where('kode_pesanan', 'like', '%' . $keyword . '%')
+                    ->orWhere('nama_pelanggan', 'like', '%' . $keyword . '%');
+            });
+        }
+
+        $pesanans = $query
+            ->paginate(8)
+            ->withQueryString();
+
+        return view('customer.pesanan.index', compact('pesanans'));
     }
 
     public function create(Request $request)
