@@ -238,22 +238,25 @@
                                 <div class="form-group">
                                     <label for="metode_pembayaran">Metode Pembayaran</label>
                                     <select id="metode_pembayaran" name="metode_pembayaran" required>
-                                        <option value="cash" {{ old('metode_pembayaran', 'cash') === 'cash' ? 'selected' : '' }}>Cash</option>
-                                        <option value="transfer" {{ old('metode_pembayaran') === 'transfer' ? 'selected' : '' }}>Transfer</option>
+                                        <option value="cash" {{ old('metode_pembayaran', 'cash') === 'cash' ? 'selected' : '' }}>
+                                            Cash
+                                        </option>
+
+                                        <option value="transfer" {{ old('metode_pembayaran') === 'transfer' ? 'selected' : '' }}>
+                                            Online via Midtrans
+                                        </option>
                                     </select>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="channel_pembayaran">Channel Pembayaran</label>
-                                <input
-                                    type="text"
-                                    id="channel_pembayaran"
-                                    name="channel_pembayaran"
-                                    value="{{ old('channel_pembayaran') }}"
-                                    placeholder="Contoh: BCA, BRI, DANA, GoPay. Kosongkan jika cash."
-                                >
+                            <div class="payment-info-box" id="paymentInfoBox">
+                                <strong>Cash</strong>
+                                <p>
+                                    Pembayaran dilakukan langsung kepada admin saat pesanan diambil atau sesuai konfirmasi admin.
+                                </p>
                             </div>
+
+                            <input type="hidden" id="channel_pembayaran" name="channel_pembayaran" value="{{ old('channel_pembayaran') }}">
 
                             <div class="form-group">
                                 <label for="detail_lokasi">Detail Lokasi</label>
@@ -333,6 +336,39 @@
             const files = document.querySelector('#files');
             const jilid = document.querySelector('#pakai_jilid');
             const laminating = document.querySelector('#pakai_laminating');
+            const metodePembayaran = document.querySelector('#metode_pembayaran');
+            const paymentInfoBox = document.querySelector('#paymentInfoBox');
+            const channelPembayaran = document.querySelector('#channel_pembayaran');
+
+            const updatePaymentInfo = () => {
+                if (!metodePembayaran || !paymentInfoBox || !channelPembayaran) {
+                    return;
+                }
+
+                if (metodePembayaran.value === 'transfer') {
+                    paymentInfoBox.innerHTML = `
+                        <strong>Online via Midtrans</strong>
+                        <p>
+                            Setelah pesanan dikirim, kamu akan diarahkan ke halaman pembayaran Midtrans.
+                            Pilihan pembayaran seperti bank transfer, e-wallet, atau metode lain akan mengikuti kanal yang aktif di Midtrans.
+                        </p>
+                    `;
+
+                    channelPembayaran.value = 'Midtrans';
+                } else {
+                    paymentInfoBox.innerHTML = `
+                        <strong>Cash</strong>
+                        <p>
+                            Pembayaran dilakukan langsung kepada admin saat pesanan diambil atau sesuai konfirmasi admin.
+                        </p>
+                    `;
+
+                    channelPembayaran.value = '';
+                }
+            };
+
+            metodePembayaran?.addEventListener('change', updatePaymentInfo);
+            updatePaymentInfo();
 
             const rupiah = (number) => {
                 return new Intl.NumberFormat('id-ID', {
