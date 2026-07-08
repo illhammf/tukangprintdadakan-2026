@@ -39,15 +39,38 @@ class MidtransReturnController extends Controller
                 ->with('error', 'Data pembayaran Midtrans tidak ditemukan. Silakan cek detail pesanan atau hubungi admin.');
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Fallback khusus Sandbox lokal
+        |--------------------------------------------------------------------------
+        | Di local domain seperti tukangprintdadakan.test, Status API Midtrans
+        | sering tidak bisa dipakai stabil untuk Snap sandbox dan webhook belum bisa
+        | masuk karena URL belum public. Jadi jika user sudah benar-benar kembali
+        | dari halaman Midtrans finish, pembayaran dianggap berhasil.
+        */
+        if (! config('midtrans.is_production') && $pesanan) {
+            $this->markAsPaid(
+                pembayaran: $pembayaran,
+                response: [
+                    'order_id' => $orderId,
+                    'transaction_status' => 'settlement',
+                    'status_code' => '200',
+                    'status_message' => 'Sandbox local finish fallback. Payment marked as paid after returning from Midtrans.',
+                    'status_check_source' => 'sandbox_local_finish_fallback',
+                    'query' => $request->query(),
+                ],
+                note: 'Pembayaran sandbox Midtrans berhasil. Pesanan mulai diproses.'
+            );
+
+            return redirect()
+                ->route('customer.pesanan.show', $pembayaran->pesanan)
+                ->with('success', 'Pembayaran berhasil. Status pembayaran telah diperbarui menjadi lunas.');
+        }
+
         $this->configureMidtrans();
 
         try {
-            if ($request->filled('transaction_status')) {
-                $statusArray = $request->query();
-                $statusArray['status_check_source'] = 'return_url_query';
-            } else {
-                $statusArray = $this->fetchStatusFromMidtrans($orderId);
-            }
+            $statusArray = $this->fetchStatusFromMidtrans($orderId);
         } catch (\Throwable $exception) {
             Log::warning('Midtrans finish status check failed', [
                 'order_id' => $orderId,
@@ -56,26 +79,9 @@ class MidtransReturnController extends Controller
                 'query' => $request->query(),
             ]);
 
-            if (
-                ! config('midtrans.is_production')
-                && (
-                    $request->query('from') === 'midtrans_finish'
-                    || $pesanan
-                )
-            ) {
-                $statusArray = [
-                    'order_id' => $orderId,
-                    'transaction_status' => 'settlement',
-                    'status_code' => '200',
-                    'status_message' => 'Sandbox finish fallback. Payment marked as settlement after returning from Midtrans finish page.',
-                    'status_check_source' => 'sandbox_finish_fallback',
-                    'status_check_error' => $exception->getMessage(),
-                ];
-            } else {
-                return redirect()
-                    ->route('customer.pesanan.show', $pembayaran->pesanan)
-                    ->with('error', 'Status pembayaran belum dapat diverifikasi dari Midtrans. Silakan cek beberapa saat lagi.');
-            }
+            return redirect()
+                ->route('customer.pesanan.show', $pembayaran->pesanan)
+                ->with('error', 'Status pembayaran belum dapat diverifikasi dari Midtrans. Silakan cek beberapa saat lagi.');
         }
 
         $message = $this->applyPaymentStatus($pembayaran, $statusArray);
@@ -95,6 +101,30 @@ class MidtransReturnController extends Controller
 
         if (! $pembayaran || ! $pembayaran->midtrans_order_id) {
             return back()->with('error', 'Data pembayaran Midtrans tidak ditemukan.');
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tombol cek manual khusus local sandbox
+        |--------------------------------------------------------------------------
+        | Karena status API di local sandbox kamu mengembalikan 404, tombol ini
+        | dipakai sebagai simulasi validasi setelah user menyelesaikan pembayaran.
+        | Di production, bagian ini tidak berjalan.
+        */
+        if (! config('midtrans.is_production')) {
+            $this->markAsPaid(
+                pembayaran: $pembayaran,
+                response: [
+                    'order_id' => $pembayaran->midtrans_order_id,
+                    'transaction_status' => 'settlement',
+                    'status_code' => '200',
+                    'status_message' => 'Manual sandbox check fallback. Payment marked as paid locally.',
+                    'status_check_source' => 'manual_sandbox_check_fallback',
+                ],
+                note: 'Pembayaran sandbox Midtrans dikonfirmasi melalui tombol cek status.'
+            );
+
+            return back()->with('success', 'Pembayaran sandbox berhasil dikonfirmasi. Status pembayaran menjadi lunas.');
         }
 
         $this->configureMidtrans();
@@ -160,31 +190,25 @@ class MidtransReturnController extends Controller
     {
         $transactionStatus = $statusArray['transaction_status'] ?? null;
 
-        $updateData = [
-            'transaction_id' => $statusArray['transaction_id'] ?? $pembayaran->transaction_id,
-            'payment_type' => $statusArray['payment_type'] ?? $pembayaran->payment_type,
-            'fraud_status' => $statusArray['fraud_status'] ?? $pembayaran->fraud_status,
-            'midtrans_response' => $statusArray,
-        ];
-
         if (in_array($transactionStatus, ['capture', 'settlement'], true)) {
-            $updateData['status_pembayaran'] = 'lunas';
-            $updateData['tanggal_bayar'] = now();
-
-            $pembayaran->update($updateData);
-
-            if ($pembayaran->pesanan?->status_pesanan === 'menunggu_verifikasi') {
-                $pembayaran->pesanan->ubahStatus(
-                    'diproses',
-                    'Pembayaran online melalui Midtrans berhasil. Pesanan mulai diproses.'
-                );
-            }
+            $this->markAsPaid(
+                pembayaran: $pembayaran,
+                response: $statusArray,
+                note: 'Pembayaran online melalui Midtrans berhasil. Pesanan mulai diproses.'
+            );
 
             return [
                 'type' => 'success',
                 'text' => 'Pembayaran berhasil. Status pembayaran telah diperbarui menjadi lunas.',
             ];
         }
+
+        $updateData = [
+            'transaction_id' => $statusArray['transaction_id'] ?? $pembayaran->transaction_id,
+            'payment_type' => $statusArray['payment_type'] ?? $pembayaran->payment_type,
+            'fraud_status' => $statusArray['fraud_status'] ?? $pembayaran->fraud_status,
+            'midtrans_response' => $statusArray,
+        ];
 
         if ($transactionStatus === 'pending') {
             $updateData['status_pembayaran'] = 'belum_bayar';
@@ -214,6 +238,24 @@ class MidtransReturnController extends Controller
             'type' => 'error',
             'text' => 'Status pembayaran belum dikenali. Silakan cek beberapa saat lagi.',
         ];
+    }
+
+    private function markAsPaid(Pembayaran $pembayaran, array $response, string $note): void
+    {
+        $pembayaran->loadMissing('pesanan');
+
+        $pembayaran->update([
+            'status_pembayaran' => 'lunas',
+            'tanggal_bayar' => now(),
+            'transaction_id' => $response['transaction_id'] ?? $pembayaran->transaction_id,
+            'payment_type' => $response['payment_type'] ?? $pembayaran->payment_type,
+            'fraud_status' => $response['fraud_status'] ?? $pembayaran->fraud_status,
+            'midtrans_response' => $response,
+        ]);
+
+        if ($pembayaran->pesanan?->status_pesanan === 'menunggu_verifikasi') {
+            $pembayaran->pesanan->ubahStatus('diproses', $note);
+        }
     }
 
     private function configureMidtrans(): void
