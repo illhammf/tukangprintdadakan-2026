@@ -56,7 +56,10 @@ class MidtransService
             ],
 
             'callbacks' => [
-                'finish' => route('midtrans.finish', ['pesanan' => $pesanan->id]),
+                'finish' => route('midtrans.finish', [
+                    'pesanan' => $pesanan->id,
+                    'from' => 'midtrans_finish',
+                ]),
             ],
         ];
 
