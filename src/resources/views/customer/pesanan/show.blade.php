@@ -26,6 +26,20 @@
                             @csrf
                             @method('PATCH')
 
+                    @if (
+                        $pesanan->pembayaran?->metode_pembayaran === 'transfer'
+                        && $pesanan->pembayaran?->status_pembayaran !== 'lunas'
+                        && $pesanan->pembayaran?->midtrans_order_id
+                    )
+                        <form action="{{ route('customer.pesanan.check-midtrans', $pesanan) }}" method="POST">
+                            @csrf
+
+                            <button type="submit" class="btn-primary">
+                                Cek Status Pembayaran
+                            </button>
+                        </form>
+                    @endif
+
                             <button type="submit" class="btn-danger" onclick="return confirm('Batalkan pesanan ini?')">
                                 Batalkan Pesanan
                             </button>

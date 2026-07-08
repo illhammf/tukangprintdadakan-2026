@@ -83,6 +83,9 @@ Route::middleware('auth')
         Route::post('/pesanan', [PesananController::class, 'store'])->name('pesanan.store');
         Route::get('/pesanan/{pesanan}', [PesananController::class, 'show'])->name('pesanan.show');
         Route::patch('/pesanan/{pesanan}/batal', [PesananController::class, 'cancel'])->name('pesanan.cancel');
+
+        Route::post('/pesanan/{pesanan}/cek-pembayaran-midtrans', [MidtransReturnController::class, 'check'])
+            ->name('pesanan.check-midtrans');
     });
 
 Route::post('/midtrans/notification', [MidtransWebhookController::class, 'handle'])
