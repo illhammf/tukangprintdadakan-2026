@@ -8,6 +8,7 @@ use App\Models\Pesanan;
 use Illuminate\Http\Request;
 use Midtrans\Config;
 use Midtrans\Transaction;
+use Illuminate\Support\Facades\Log;
 
 class MidtransReturnController extends Controller
 {
@@ -41,10 +42,25 @@ class MidtransReturnController extends Controller
 
         try {
             $status = Transaction::status($orderId);
+
+            $statusArray = json_decode(json_encode($status), true);
         } catch (\Throwable $exception) {
-            return redirect()
-                ->route('customer.pesanan.show', $pembayaran->pesanan)
-                ->with('error', 'Status pembayaran belum dapat diverifikasi dari Midtrans. Silakan cek beberapa saat lagi.');
+            Log::warning('Midtrans status check failed on return URL', [
+                'order_id' => $orderId,
+                'message' => $exception->getMessage(),
+                'query' => $request->query(),
+            ]);
+
+            $statusArray = $request->query();
+
+            if (blank($statusArray['transaction_status'] ?? null)) {
+                return redirect()
+                    ->route('customer.pesanan.show', $pembayaran->pesanan)
+                    ->with('error', 'Status pembayaran belum dapat diverifikasi dari Midtrans. Silakan cek beberapa saat lagi.');
+            }
+
+            $statusArray['status_check_source'] = 'return_url_fallback';
+            $statusArray['status_check_error'] = $exception->getMessage();
         }
 
         $statusArray = json_decode(json_encode($status), true);

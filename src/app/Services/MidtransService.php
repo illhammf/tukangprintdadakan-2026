@@ -14,6 +14,15 @@ class MidtransService
         Config::$isProduction = (bool) config('midtrans.is_production');
         Config::$isSanitized = (bool) config('midtrans.is_sanitized');
         Config::$is3ds = (bool) config('midtrans.is_3ds');
+
+            if (blank(config('midtrans.server_key')) || blank(config('midtrans.client_key'))) {
+        throw new \RuntimeException('Konfigurasi Midtrans belum terbaca. Periksa MIDTRANS_SERVER_KEY dan MIDTRANS_CLIENT_KEY di file .env.');
+        }
+
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$isProduction = (bool) config('midtrans.is_production');
+        Config::$isSanitized = (bool) config('midtrans.is_sanitized');
+        Config::$is3ds = (bool) config('midtrans.is_3ds');
     }
 
     public function createSnapTransaction(Pesanan $pesanan): object
