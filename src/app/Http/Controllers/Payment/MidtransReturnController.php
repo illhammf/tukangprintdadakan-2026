@@ -51,15 +51,26 @@ class MidtransReturnController extends Controller
         } catch (\Throwable $exception) {
             Log::warning('Midtrans finish status check failed', [
                 'order_id' => $orderId,
+                'pesanan_id' => $pesanan?->id,
                 'message' => $exception->getMessage(),
                 'query' => $request->query(),
             ]);
 
-            if (! config('midtrans.is_production') && (string) $request->query('status_code') === '200') {
-                $statusArray = $request->query();
-                $statusArray['transaction_status'] = 'settlement';
-                $statusArray['status_check_source'] = 'sandbox_status_code_fallback';
-                $statusArray['status_check_error'] = $exception->getMessage();
+            if (
+                ! config('midtrans.is_production')
+                && (
+                    $request->query('from') === 'midtrans_finish'
+                    || $pesanan
+                )
+            ) {
+                $statusArray = [
+                    'order_id' => $orderId,
+                    'transaction_status' => 'settlement',
+                    'status_code' => '200',
+                    'status_message' => 'Sandbox finish fallback. Payment marked as settlement after returning from Midtrans finish page.',
+                    'status_check_source' => 'sandbox_finish_fallback',
+                    'status_check_error' => $exception->getMessage(),
+                ];
             } else {
                 return redirect()
                     ->route('customer.pesanan.show', $pembayaran->pesanan)
