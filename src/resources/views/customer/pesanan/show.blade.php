@@ -21,15 +21,11 @@
                         Kembali
                     </a>
 
-                    @if ($pesanan->status_pesanan === 'menunggu_verifikasi')
-                        <form action="{{ route('customer.pesanan.cancel', $pesanan) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-
                     @if (
                         $pesanan->pembayaran?->metode_pembayaran === 'transfer'
                         && $pesanan->pembayaran?->status_pembayaran !== 'lunas'
                         && $pesanan->pembayaran?->midtrans_order_id
+                        && $pesanan->status_pesanan !== 'dibatalkan'
                     )
                         <form action="{{ route('customer.pesanan.check-midtrans', $pesanan) }}" method="POST">
                             @csrf
@@ -39,6 +35,14 @@
                             </button>
                         </form>
                     @endif
+
+                    @if (
+                        $pesanan->status_pesanan === 'menunggu_verifikasi'
+                        && $pesanan->pembayaran?->status_pembayaran !== 'lunas'
+                    )
+                        <form action="{{ route('customer.pesanan.cancel', $pesanan) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
 
                             <button type="submit" class="btn-danger" onclick="return confirm('Batalkan pesanan ini?')">
                                 Batalkan Pesanan
