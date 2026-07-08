@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Pembayaran;
 use App\Models\Pesanan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
 use Midtrans\Transaction;
-use Illuminate\Support\Facades\Log;
 
 class MidtransReturnController extends Controller
 {
@@ -40,37 +40,79 @@ class MidtransReturnController extends Controller
 
         $this->configureMidtrans();
 
-        try {
-            $status = Transaction::status($orderId);
+        $statusArray = [];
 
-            $statusArray = json_decode(json_encode($status), true);
-        } catch (\Throwable $exception) {
-            Log::warning('Midtrans status check failed on return URL', [
-                'order_id' => $orderId,
-                'message' => $exception->getMessage(),
-                'query' => $request->query(),
-            ]);
-
+        if ($request->filled('transaction_status')) {
             $statusArray = $request->query();
+            $statusArray['status_check_source'] = 'return_url_query';
+        } else {
+            try {
+                $status = Transaction::status($orderId);
 
-            if (blank($statusArray['transaction_status'] ?? null)) {
+                $statusArray = json_decode(json_encode($status), true);
+                $statusArray['status_check_source'] = 'midtrans_status_api';
+            } catch (\Throwable $exception) {
+                Log::warning('Midtrans status check failed on return URL', [
+                    'order_id' => $orderId,
+                    'message' => $exception->getMessage(),
+                    'query' => $request->query(),
+                ]);
+
                 return redirect()
                     ->route('customer.pesanan.show', $pembayaran->pesanan)
                     ->with('error', 'Status pembayaran belum dapat diverifikasi dari Midtrans. Silakan cek beberapa saat lagi.');
             }
-
-            $statusArray['status_check_source'] = 'return_url_fallback';
-            $statusArray['status_check_error'] = $exception->getMessage();
         }
 
-        $statusArray = json_decode(json_encode($status), true);
+        $message = $this->applyPaymentStatus($pembayaran, $statusArray);
 
+        return redirect()
+            ->route('customer.pesanan.show', $pembayaran->pesanan)
+            ->with($message['type'], $message['text']);
+    }
+
+    public function check(Pesanan $pesanan)
+    {
+        abort_if($pesanan->user_id !== auth()->id(), 403);
+
+        $pesanan->load('pembayaran');
+
+        $pembayaran = $pesanan->pembayaran;
+
+        if (! $pembayaran || ! $pembayaran->midtrans_order_id) {
+            return back()->with('error', 'Data pembayaran Midtrans tidak ditemukan.');
+        }
+
+        $this->configureMidtrans();
+
+        try {
+            $status = Transaction::status($pembayaran->midtrans_order_id);
+
+            $statusArray = json_decode(json_encode($status), true);
+            $statusArray['status_check_source'] = 'manual_check_button';
+
+            $message = $this->applyPaymentStatus($pembayaran, $statusArray);
+
+            return back()->with($message['type'], $message['text']);
+        } catch (\Throwable $exception) {
+            Log::warning('Manual Midtrans status check failed', [
+                'pesanan_id' => $pesanan->id,
+                'order_id' => $pembayaran->midtrans_order_id,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return back()->with('error', 'Status pembayaran belum dapat dicek. Silakan coba beberapa saat lagi.');
+        }
+    }
+
+    private function applyPaymentStatus(Pembayaran $pembayaran, array $statusArray): array
+    {
         $transactionStatus = $statusArray['transaction_status'] ?? null;
 
         $updateData = [
-            'transaction_id' => $statusArray['transaction_id'] ?? null,
-            'payment_type' => $statusArray['payment_type'] ?? null,
-            'fraud_status' => $statusArray['fraud_status'] ?? null,
+            'transaction_id' => $statusArray['transaction_id'] ?? $pembayaran->transaction_id,
+            'payment_type' => $statusArray['payment_type'] ?? $pembayaran->payment_type,
+            'fraud_status' => $statusArray['fraud_status'] ?? $pembayaran->fraud_status,
             'midtrans_response' => $statusArray,
         ];
 
@@ -87,9 +129,10 @@ class MidtransReturnController extends Controller
                 );
             }
 
-            return redirect()
-                ->route('customer.pesanan.show', $pembayaran->pesanan)
-                ->with('success', 'Pembayaran berhasil. Status pembayaran telah diperbarui menjadi lunas.');
+            return [
+                'type' => 'success',
+                'text' => 'Pembayaran berhasil. Status pembayaran telah diperbarui menjadi lunas.',
+            ];
         }
 
         if ($transactionStatus === 'pending') {
@@ -97,9 +140,10 @@ class MidtransReturnController extends Controller
 
             $pembayaran->update($updateData);
 
-            return redirect()
-                ->route('customer.pesanan.show', $pembayaran->pesanan)
-                ->with('error', 'Pembayaran masih pending. Selesaikan pembayaran sesuai instruksi Midtrans.');
+            return [
+                'type' => 'error',
+                'text' => 'Pembayaran masih pending. Selesaikan pembayaran sesuai instruksi Midtrans.',
+            ];
         }
 
         if (in_array($transactionStatus, ['deny', 'cancel', 'expire', 'failure'], true)) {
@@ -107,16 +151,18 @@ class MidtransReturnController extends Controller
 
             $pembayaran->update($updateData);
 
-            return redirect()
-                ->route('customer.pesanan.show', $pembayaran->pesanan)
-                ->with('error', 'Pembayaran gagal, dibatalkan, atau kedaluwarsa.');
+            return [
+                'type' => 'error',
+                'text' => 'Pembayaran gagal, dibatalkan, atau kedaluwarsa.',
+            ];
         }
 
         $pembayaran->update($updateData);
 
-        return redirect()
-            ->route('customer.pesanan.show', $pembayaran->pesanan)
-            ->with('success', 'Status pembayaran berhasil diperiksa.');
+        return [
+            'type' => 'error',
+            'text' => 'Status pembayaran belum dikenali. Silakan cek beberapa saat lagi.',
+        ];
     }
 
     private function configureMidtrans(): void
