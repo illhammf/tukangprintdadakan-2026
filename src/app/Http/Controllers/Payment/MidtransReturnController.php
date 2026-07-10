@@ -39,24 +39,15 @@ class MidtransReturnController extends Controller
                 ->with('error', 'Data pembayaran Midtrans tidak ditemukan. Silakan cek detail pesanan atau hubungi admin.');
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Fallback khusus Sandbox lokal
-        |--------------------------------------------------------------------------
-        | Di local domain seperti tukangprintdadakan.test, Status API Midtrans
-        | sering tidak bisa dipakai stabil untuk Snap sandbox dan webhook belum bisa
-        | masuk karena URL belum public. Jadi jika user sudah benar-benar kembali
-        | dari halaman Midtrans finish, pembayaran dianggap berhasil.
-        */
-        if (! config('midtrans.is_production') && $pesanan) {
+        if ($this->canUseLocalSandboxFallback($request)) {
             $this->markAsPaid(
                 pembayaran: $pembayaran,
                 response: [
                     'order_id' => $orderId,
                     'transaction_status' => 'settlement',
                     'status_code' => '200',
-                    'status_message' => 'Sandbox local finish fallback. Payment marked as paid after returning from Midtrans.',
-                    'status_check_source' => 'sandbox_local_finish_fallback',
+                    'status_message' => 'Local sandbox finish fallback. Payment marked as paid after returning from Midtrans.',
+                    'status_check_source' => 'local_sandbox_finish_fallback',
                     'query' => $request->query(),
                 ],
                 note: 'Pembayaran sandbox Midtrans berhasil. Pesanan mulai diproses.'
@@ -103,23 +94,19 @@ class MidtransReturnController extends Controller
             return back()->with('error', 'Data pembayaran Midtrans tidak ditemukan.');
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Tombol cek manual khusus local sandbox
-        |--------------------------------------------------------------------------
-        | Karena status API di local sandbox kamu mengembalikan 404, tombol ini
-        | dipakai sebagai simulasi validasi setelah user menyelesaikan pembayaran.
-        | Di production, bagian ini tidak berjalan.
-        */
-        if (! config('midtrans.is_production')) {
+        if ($pembayaran->status_pembayaran === 'lunas') {
+            return back()->with('success', 'Pembayaran sudah berstatus lunas.');
+        }
+
+        if ($this->canUseLocalSandboxFallback()) {
             $this->markAsPaid(
                 pembayaran: $pembayaran,
                 response: [
                     'order_id' => $pembayaran->midtrans_order_id,
                     'transaction_status' => 'settlement',
                     'status_code' => '200',
-                    'status_message' => 'Manual sandbox check fallback. Payment marked as paid locally.',
-                    'status_check_source' => 'manual_sandbox_check_fallback',
+                    'status_message' => 'Manual local sandbox check fallback. Payment marked as paid locally.',
+                    'status_check_source' => 'manual_local_sandbox_check_fallback',
                 ],
                 note: 'Pembayaran sandbox Midtrans dikonfirmasi melalui tombol cek status.'
             );
@@ -144,6 +131,25 @@ class MidtransReturnController extends Controller
 
             return back()->with('error', 'Status pembayaran belum dapat dicek. Silakan coba beberapa saat lagi.');
         }
+    }
+
+    private function canUseLocalSandboxFallback(?Request $request = null): bool
+    {
+        if (config('midtrans.is_production')) {
+            return false;
+        }
+
+        if (! config('midtrans.local_sandbox_fallback')) {
+            return false;
+        }
+
+        if (! $request) {
+            return true;
+        }
+
+        return $request->query('from') === 'midtrans_finish'
+            || $request->filled('transaction_status')
+            || $request->filled('status_code');
     }
 
     private function fetchStatusFromMidtrans(string $orderId): array
