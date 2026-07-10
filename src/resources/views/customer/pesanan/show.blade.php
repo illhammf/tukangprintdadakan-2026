@@ -243,28 +243,71 @@
                     <div class="order-summary-card">
                         <h3>Pembayaran</h3>
 
+                        @php
+                            $pembayaran = $pesanan->pembayaran;
+
+                            $statusPembayaran = $pembayaran?->status_pembayaran;
+
+                            $labelStatusPembayaran = match ($statusPembayaran) {
+                                'belum_bayar' => 'Belum Bayar',
+                                'menunggu_verifikasi' => 'Menunggu Verifikasi',
+                                'lunas' => 'Lunas',
+                                'ditolak' => 'Ditolak',
+                                default => '-',
+                            };
+
+                            $labelMetodePembayaran = match ($pembayaran?->metode_pembayaran) {
+                                'cash' => 'Cash',
+                                'transfer' => 'Online via Midtrans',
+                                default => '-',
+                            };
+
+                            $paymentType = $pembayaran?->payment_type
+                                ? ucwords(str_replace('_', ' ', $pembayaran->payment_type))
+                                : '-';
+                        @endphp
+
+                        <div class="payment-status-box payment-status-{{ $statusPembayaran ?? 'unknown' }}">
+                            <span>Status Pembayaran</span>
+                            <strong>{{ $labelStatusPembayaran }}</strong>
+                        </div>
+
                         <div class="summary-row">
                             <span>Metode</span>
-                            <strong>{{ ucfirst($pesanan->pembayaran?->metode_pembayaran ?? '-') }}</strong>
+                            <strong>{{ $labelMetodePembayaran }}</strong>
                         </div>
 
                         <div class="summary-row">
                             <span>Channel</span>
-                            <strong>{{ $pesanan->pembayaran?->channel_pembayaran ?? '-' }}</strong>
+                            <strong>{{ $pembayaran?->channel_pembayaran ?? '-' }}</strong>
                         </div>
 
                         <div class="summary-row">
-                            <span>Status</span>
-                            <strong>
-                                {{ match ($pesanan->pembayaran?->status_pembayaran) {
-                                    'belum_bayar' => 'Belum Bayar',
-                                    'menunggu_verifikasi' => 'Menunggu Verifikasi',
-                                    'lunas' => 'Lunas',
-                                    'ditolak' => 'Ditolak',
-                                    default => '-',
-                                } }}
-                            </strong>
+                            <span>Jumlah Bayar</span>
+                            <strong>Rp {{ number_format((float) ($pembayaran?->jumlah_bayar ?? 0), 0, ',', '.') }}</strong>
                         </div>
+
+                        <div class="summary-row">
+                            <span>Tanggal Bayar</span>
+                            <strong>{{ $pembayaran?->tanggal_bayar?->format('d M Y H:i') ?? '-' }}</strong>
+                        </div>
+
+                        @if ($pembayaran?->metode_pembayaran === 'transfer')
+                            <div class="summary-row">
+                                <span>Midtrans Order ID</span>
+                                <strong class="break-text">{{ $pembayaran?->midtrans_order_id ?? '-' }}</strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Transaction ID</span>
+                                <strong class="break-text">{{ $pembayaran?->transaction_id ?? '-' }}</strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Payment Type</span>
+                                <strong>{{ $paymentType }}</strong>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="order-summary-card">
