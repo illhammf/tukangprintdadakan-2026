@@ -1923,3 +1923,71 @@ select {
         grid-template-columns: 1fr;
     }
 }
+
+/* tambahan css untuk status pembayaran */
+
+.payment-status-box {
+    padding: 14px;
+    border-radius: 16px;
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+}
+
+.payment-status-box span {
+    display: block;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--muted);
+    margin-bottom: 4px;
+}
+
+.payment-status-box strong {
+    display: block;
+    font-size: 18px;
+}
+
+.payment-status-belum_bayar {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.payment-status-belum_bayar strong {
+    color: #334155;
+}
+
+.payment-status-menunggu_verifikasi {
+    background: #fef3c7;
+    border-color: #fde68a;
+}
+
+.payment-status-menunggu_verifikasi strong {
+    color: #92400e;
+}
+
+.payment-status-lunas {
+    background: #dcfce7;
+    border-color: #bbf7d0;
+}
+
+.payment-status-lunas strong {
+    color: #166534;
+}
+
+.payment-status-ditolak {
+    background: #fee2e2;
+    border-color: #fecaca;
+}
+
+.payment-status-ditolak strong {
+    color: #991b1b;
+}
+
+.payment-status-unknown {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.break-text {
+    word-break: break-word;
+    text-align: right;
+}
