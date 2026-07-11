@@ -24,6 +24,20 @@
                     @if (
                         $pesanan->pembayaran?->metode_pembayaran === 'transfer'
                         && $pesanan->pembayaran?->status_pembayaran !== 'lunas'
+                        && $pesanan->status_pesanan !== 'dibatalkan'
+                    )
+                        <form action="{{ route('customer.pesanan.pay-midtrans', $pesanan) }}" method="POST">
+                            @csrf
+
+                            <button type="submit" class="btn-primary">
+                                Bayar Sekarang
+                            </button>
+                        </form>
+                    @endif
+
+                    @if (
+                        $pesanan->pembayaran?->metode_pembayaran === 'transfer'
+                        && $pesanan->pembayaran?->status_pembayaran !== 'lunas'
                         && $pesanan->pembayaran?->midtrans_order_id
                         && $pesanan->status_pesanan !== 'dibatalkan'
                     )
