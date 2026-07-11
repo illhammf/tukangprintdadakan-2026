@@ -232,6 +232,43 @@ class PesananController extends Controller
         return view('customer.pesanan.show', compact('pesanan'));
     }
 
+    public function payMidtrans(Pesanan $pesanan) // Untuk membayar pesanan yang sudah dibuat tetapi belum dibayar melalui Midtrans
+    {
+        abort_if($pesanan->user_id !== Auth::id(), 403);
+
+        $pesanan->load(['pembayaran', 'detailPesanans.layanan']);
+
+        $pembayaran = $pesanan->pembayaran;
+
+        if (! $pembayaran) {
+            return back()->with('error', 'Data pembayaran tidak ditemukan.');
+        }
+
+        if ($pembayaran->metode_pembayaran !== 'transfer') {
+            return back()->with('error', 'Pesanan ini tidak menggunakan pembayaran online Midtrans.');
+        }
+
+        if ($pembayaran->status_pembayaran === 'lunas') {
+            return back()->with('success', 'Pembayaran pesanan ini sudah lunas.');
+        }
+
+        if ($pesanan->status_pesanan === 'dibatalkan') {
+            return back()->with('error', 'Pesanan yang sudah dibatalkan tidak dapat dibayar.');
+        }
+
+        if (! empty($pembayaran->snap_redirect_url)) {
+            return redirect()->away($pembayaran->snap_redirect_url);
+        }
+
+        $transaction = app(MidtransService::class)->createSnapTransaction($pesanan);
+
+        if (! empty($transaction->redirect_url)) {
+            return redirect()->away($transaction->redirect_url);
+        }
+
+        return back()->with('error', 'Halaman pembayaran Midtrans belum tersedia. Silakan coba beberapa saat lagi.');
+    }
+
     public function cancel(Pesanan $pesanan)
     {
         abort_if($pesanan->user_id !== Auth::id(), 403);
