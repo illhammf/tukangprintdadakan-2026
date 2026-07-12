@@ -74,7 +74,7 @@ Route::middleware('guest')->group(function () {
         '/lupa-password',
         [CustomerPasswordResetController::class, 'resetDirectly']
     )
-        ->middleware('throttle:5,10')
+        ->middleware('throttle:5,10') // Membatasi percobaan reset password langsung agar tidak disalahgunakan.
         ->name('password.direct-update');
 });
 /*
