@@ -86,6 +86,22 @@ class MidtransReturnController extends Controller
 
         $message = $this->applyPaymentStatus($pembayaran, $statusArray);
 
+        $pembayaran->refresh();
+
+        if ($pembayaran->status_pembayaran === 'lunas') {
+            $pesananPembayaran = Pesanan::query()
+                ->with([
+                    'detailPesanans.layanan',
+                    'pembayaran',
+                ])
+                ->findOrFail($pembayaran->pesanan_id);
+
+            return $this->redirectToAdminWhatsapp(
+                $pesananPembayaran,
+                $message['text']
+            );
+        }
+
         return redirect()
             ->route('customer.pesanan.show', $pembayaran->pesanan)
             ->with($message['type'], $message['text']);
@@ -271,6 +287,123 @@ class MidtransReturnController extends Controller
         if ($pembayaran->pesanan?->status_pesanan === 'menunggu_verifikasi') {
             $pembayaran->pesanan->ubahStatus('diproses', $note);
         }
+    }
+
+    private function redirectToAdminWhatsapp(Pesanan $pesanan, string $successMessage)
+    {
+        $website = PengaturanWebsite::query()->first();
+
+        $whatsappUrl = $this->buildAdminWhatsappUrl(
+            $website?->nomor_whatsapp,
+            $this->buildTransferWhatsappMessage($pesanan)
+        );
+
+        if ($whatsappUrl) {
+            return redirect()->away($whatsappUrl);
+        }
+
+        return redirect()
+            ->route('customer.pesanan.show', $pesanan)
+            ->with('success', $successMessage);
+    }
+
+    private function buildTransferWhatsappMessage(Pesanan $pesanan): string
+    {
+        $pembayaran = $pesanan->pembayaran;
+
+        $detailText = $pesanan->detailPesanans
+            ->map(function ($detail, int $index) {
+                $nomor = $index + 1;
+
+                $jenisPrint = match ($detail->jenis_print) {
+                    'hitam_putih' => 'Hitam Putih',
+                    'warna' => 'Warna',
+                    default => '-',
+                };
+
+                return "{$nomor}. {$detail->nama_file}\n"
+                    . "   Layanan: " . ($detail->layanan?->nama_layanan ?? '-') . "\n"
+                    . "   Jenis Print: {$jenisPrint}\n"
+                    . "   Ukuran: " . ($detail->ukuran_kertas ?? '-') . "\n"
+                    . "   Halaman: {$detail->jumlah_halaman}\n"
+                    . "   Copy: {$detail->jumlah_copy}\n"
+                    . "   Jilid: " . ($detail->pakai_jilid ? 'Ya' : 'Tidak') . "\n"
+                    . "   Laminating: " . ($detail->pakai_laminating ? 'Ya' : 'Tidak') . "\n"
+                    . "   Subtotal: Rp "
+                    . number_format((float) $detail->subtotal, 0, ',', '.');
+            })
+            ->implode("\n\n");
+
+        $paymentType = $pembayaran?->payment_type
+            ? ucwords(str_replace('_', ' ', $pembayaran->payment_type))
+            : '-';
+
+        $adminUrl = url('/admin/pesanans/' . $pesanan->id . '/edit');
+
+        return "Halo Admin Tukang Print Dadakan.\n\n"
+            . "Pembayaran online pelanggan berhasil.\n\n"
+            . "Kode Pesanan: {$pesanan->kode_pesanan}\n"
+            . "Nama: {$pesanan->nama_pelanggan}\n"
+            . "Email: " . ($pesanan->email ?? '-') . "\n"
+            . "WhatsApp: " . ($pesanan->nomor_whatsapp ?? '-') . "\n\n"
+            . "Tanggal Pesan: "
+            . ($pesanan->tanggal_pesan?->format('d M Y') ?? '-') . "\n"
+            . "Tanggal Pengambilan: "
+            . ($pesanan->tanggal_pengambilan?->format('d M Y') ?? '-') . "\n"
+            . "Jam Pengambilan: "
+            . ($pesanan->jam_pengambilan?->format('H:i') ?? '-') . "\n"
+            . "Lokasi: " . ($pesanan->lokasi_pengambilan ?? '-') . "\n"
+            . "Detail Lokasi: " . ($pesanan->detail_lokasi ?? '-') . "\n\n"
+            . "Detail File:\n"
+            . ($detailText ?: '-') . "\n\n"
+            . "Total Pembayaran: Rp "
+            . number_format((float) $pesanan->total_harga, 0, ',', '.') . "\n"
+            . "Metode Pembayaran: Online via Midtrans\n"
+            . "Status Pembayaran: Lunas\n"
+            . "Payment Type: {$paymentType}\n"
+            . "Midtrans Order ID: "
+            . ($pembayaran?->midtrans_order_id ?? '-') . "\n"
+            . "Transaction ID: "
+            . ($pembayaran?->transaction_id ?? '-') . "\n\n"
+            . "Catatan Pesanan:\n"
+            . ($pesanan->catatan ?? '-') . "\n\n"
+            . "Link Admin:\n{$adminUrl}";
+    }
+
+    private function buildAdminWhatsappUrl(
+        ?string $nomorWhatsapp,
+        string $message
+    ): ?string {
+        $nomor = $this->normalizeWhatsappNumber($nomorWhatsapp);
+
+        if (! $nomor) {
+            return null;
+        }
+
+        return 'https://wa.me/' . $nomor . '?text=' . urlencode($message);
+    }
+
+    private function normalizeWhatsappNumber(?string $nomorWhatsapp): ?string
+    {
+        if (! $nomorWhatsapp) {
+            return null;
+        }
+
+        $nomor = preg_replace('/[^0-9]/', '', $nomorWhatsapp);
+
+        if (! $nomor) {
+            return null;
+        }
+
+        if (str_starts_with($nomor, '0')) {
+            return '62' . substr($nomor, 1);
+        }
+
+        if (str_starts_with($nomor, '8')) {
+            return '62' . $nomor;
+        }
+
+        return $nomor;
     }
 
     private function configureMidtrans(): void
