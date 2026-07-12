@@ -65,12 +65,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/registrasi', [CustomerAuthController::class, 'register'])
         ->name('register.store');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Customer Password Reset
-    |--------------------------------------------------------------------------
-    */
-
     Route::get(
         '/lupa-password',
         [CustomerPasswordResetController::class, 'showForgotPassword']
@@ -91,6 +85,16 @@ Route::middleware('guest')->group(function () {
         [CustomerPasswordResetController::class, 'resetPassword']
     )->name('password.update');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Customer Logout
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/logout', [CustomerAuthController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
 /*
 |--------------------------------------------------------------------------
 | Customer Area
