@@ -33,7 +33,7 @@
                             id="email"
                             name="email"
                             value="{{ old('email') }}"
-                            placeholder="contoh@email.com"
+                            placeholder="Masukkan email"
                             required
                         >
 
@@ -49,6 +49,7 @@
                             type="password"
                             id="password"
                             name="password"
+                            placeholder="Masukkan password"
                             autocomplete="current-password"
                             required
                         >
