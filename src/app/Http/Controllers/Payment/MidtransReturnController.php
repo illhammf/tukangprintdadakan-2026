@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pembayaran;
+use App\Models\PengaturanWebsite;
 use App\Models\Pesanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -53,9 +54,17 @@ class MidtransReturnController extends Controller
                 note: 'Pembayaran sandbox Midtrans berhasil. Pesanan mulai diproses.'
             );
 
-            return redirect()
-                ->route('customer.pesanan.show', $pembayaran->pesanan)
-                ->with('success', 'Pembayaran berhasil. Status pembayaran telah diperbarui menjadi lunas.');
+        $pesananPembayaran = Pesanan::query()
+            ->with([
+                'detailPesanans.layanan',
+                'pembayaran',
+            ])
+            ->findOrFail($pembayaran->pesanan_id);
+
+        return $this->redirectToAdminWhatsapp(
+            $pesananPembayaran,
+            'Pembayaran berhasil. Status pembayaran telah diperbarui menjadi lunas.'
+        );
         }
 
         $this->configureMidtrans();
