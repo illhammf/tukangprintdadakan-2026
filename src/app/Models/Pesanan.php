@@ -67,20 +67,25 @@ class Pesanan extends Model
     {
         $subtotal = (float) $this->detailPesanans()->sum('subtotal');
         $biayaTambahan = (float) ($this->biaya_tambahan ?? 0);
-        $biayaPengiriman = (float) ($this->biaya_pengiriman ?? 0);
+
+        $biayaPengiriman = (float) (
+            $this->pengiriman()
+                ->value('biaya_pengiriman') ?? 0
+        );
 
         $totalHarga = $subtotal + $biayaTambahan + $biayaPengiriman;
 
         $this->forceFill([
             'subtotal' => $subtotal,
+            'biaya_pengiriman' => $biayaPengiriman,
             'total_harga' => $totalHarga,
         ])->saveQuietly();
 
-        if ($this->pembayaran) {
-            $this->pembayaran()->update([
+        $this->pembayaran()
+            ->where('status_pembayaran', '!=', 'lunas')
+            ->update([
                 'jumlah_bayar' => $totalHarga,
             ]);
-        }
     }
 
     public function ubahStatus(string $status, ?string $catatan = null): void
