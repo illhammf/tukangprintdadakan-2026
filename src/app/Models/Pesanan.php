@@ -94,19 +94,59 @@ class Pesanan extends Model
             return;
         }
 
-        if ($status === 'selesai' && $this->pembayaran?->status_pembayaran !== 'lunas') {
-            throw new \Exception('Pesanan belum bisa diselesaikan karena pembayaran belum lunas.');
+        $transisiDiizinkan = [
+            'menunggu_verifikasi' => [
+                'diproses',
+                'dibatalkan',
+            ],
+            'diproses' => [
+                'siap_diambil',
+            ],
+            'siap_diambil' => [
+                'selesai',
+            ],
+            'selesai' => [],
+            'dibatalkan' => [],
+        ];
+
+        $statusSekarang = $this->status_pesanan;
+
+        if (! in_array(
+            $status,
+            $transisiDiizinkan[$statusSekarang] ?? [],
+            true
+        )) {
+            throw new \DomainException(
+                "Status tidak dapat diubah dari {$statusSekarang} menjadi {$status}."
+            );
         }
 
-        $this->forceFill([
-            'status_pesanan' => $status,
-        ])->saveQuietly();
+        if (
+            $status === 'selesai'
+            && $this->pembayaran?->status_pembayaran !== 'lunas'
+        ) {
+            throw new \DomainException(
+                'Pesanan belum dapat diselesaikan karena pembayaran belum lunas.'
+            );
+        }
 
-        $this->riwayatStatusPesanans()->create([
-            'status' => $status,
-            'catatan' => $catatan ?? 'Status pesanan berubah menjadi ' . str_replace('_', ' ', $status) . '.',
-            'waktu_status' => now(),
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use (
+            $status,
+            $catatan
+        ) {
+            $this->forceFill([
+                'status_pesanan' => $status,
+            ])->saveQuietly();
+
+            $this->riwayatStatusPesanans()->create([
+                'status' => $status,
+                'catatan' => $catatan
+                    ?? 'Status pesanan berubah menjadi '
+                    . str_replace('_', ' ', $status)
+                    . '.',
+                'waktu_status' => now(),
+            ]);
+        });
     }
 
     protected static function booted(): void
