@@ -109,6 +109,8 @@ Route::middleware('auth')
 
         Route::get('/profil', [ProfilController::class, 'edit'])->name('profil.edit');
         Route::put('/profil', [ProfilController::class, 'update'])->name('profil.update');
+        Route::put('/profil/password', [ProfilController::class, 'updatePassword'])
+            ->name('profil.password.update');
 
         Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
         Route::get('/pesanan/buat', [PesananController::class, 'create'])->name('pesanan.create');
