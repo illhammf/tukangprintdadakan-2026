@@ -111,14 +111,11 @@ class PesananPolicy
      */
     public function replicate(User $user, Pesanan $pesanan): bool
     {
-        return $user->can('{{ Replicate }}');
+        return false;
     }
 
-    /**
-     * Determine whether the user can reorder.
-     */
     public function reorder(User $user): bool
     {
-        return $user->can('{{ Reorder }}');
+        return false;
     }
 }
