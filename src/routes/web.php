@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\CustomerAuthController;
+use App\Http\Controllers\Auth\CustomerPasswordResetController;
 use App\Http\Controllers\Customer\DashboardController;
 use App\Http\Controllers\Customer\PesananController;
 use App\Http\Controllers\Customer\ProfilController;
@@ -52,17 +53,44 @@ Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store')
 */
 
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.store');
+    Route::get('/login', [CustomerAuthController::class, 'showLogin'])
+        ->name('login');
 
-    Route::get('/registrasi', [CustomerAuthController::class, 'showRegister'])->name('register');
-    Route::post('/registrasi', [CustomerAuthController::class, 'register'])->name('register.store');
+    Route::post('/login', [CustomerAuthController::class, 'login'])
+        ->name('login.store');
+
+    Route::get('/registrasi', [CustomerAuthController::class, 'showRegister'])
+        ->name('register');
+
+    Route::post('/registrasi', [CustomerAuthController::class, 'register'])
+        ->name('register.store');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Customer Password Reset
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/lupa-password',
+        [CustomerPasswordResetController::class, 'showForgotPassword']
+    )->name('password.request');
+
+    Route::post(
+        '/lupa-password',
+        [CustomerPasswordResetController::class, 'sendResetLink']
+    )->name('password.email');
+
+    Route::get(
+        '/reset-password/{token}',
+        [CustomerPasswordResetController::class, 'showResetPassword']
+    )->name('password.reset');
+
+    Route::post(
+        '/reset-password',
+        [CustomerPasswordResetController::class, 'resetPassword']
+    )->name('password.update');
 });
-
-Route::post('/logout', [CustomerAuthController::class, 'logout'])
-    ->middleware('auth')
-    ->name('logout');
-
 /*
 |--------------------------------------------------------------------------
 | Customer Area
