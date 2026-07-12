@@ -154,10 +154,19 @@ class Pesanan extends Model
         static::creating(function (Pesanan $pesanan) {
             if (blank($pesanan->kode_pesanan)) {
                 $tanggal = now()->format('Ymd');
+                $prefix = "TPD-{$tanggal}-";
 
-                $jumlahPesananHariIni = self::whereDate('created_at', today())->count() + 1;
+                $kodeTerakhir = self::query()
+                    ->where('kode_pesanan', 'like', "{$prefix}%")
+                    ->orderByDesc('kode_pesanan')
+                    ->value('kode_pesanan');
 
-                $pesanan->kode_pesanan = 'TPD-' . $tanggal . '-' . str_pad($jumlahPesananHariIni, 4, '0', STR_PAD_LEFT);
+                $nomorTerakhir = $kodeTerakhir
+                    ? (int) substr($kodeTerakhir, -4)
+                    : 0;
+
+                $pesanan->kode_pesanan = $prefix
+                    . str_pad($nomorTerakhir + 1, 4, '0', STR_PAD_LEFT);
             }
 
             if (blank($pesanan->tanggal_pesan)) {
