@@ -103,7 +103,7 @@ Route::post('/logout', [CustomerAuthController::class, 'logout'])
 
 Route::middleware('auth')
     ->prefix('pelanggan')
-    ->name('customer.')
+    ->name('customer.profile.password.update')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
