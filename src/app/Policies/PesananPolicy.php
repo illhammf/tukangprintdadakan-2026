@@ -27,6 +27,21 @@ class PesananPolicy
             || $pesanan->user_id === $user->id;
     }
 
+    public function cancel(User $user, Pesanan $pesanan): bool
+    {
+        return $pesanan->user_id === $user->id
+            && $pesanan->status_pesanan === 'menunggu_verifikasi';
+    }
+
+    public function pay(User $user, Pesanan $pesanan): bool
+    {
+        return $pesanan->user_id === $user->id
+            && ! in_array($pesanan->status_pesanan, [
+                'selesai',
+                'dibatalkan',
+            ], true);
+    }
+
     /**
      * Determine whether the user can create models.
      */
