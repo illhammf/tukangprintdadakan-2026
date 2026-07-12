@@ -5,18 +5,17 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\PengaturanWebsite;
 use App\Models\User;
-use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class CustomerPasswordResetController extends Controller
 {
     /**
-     * Menampilkan halaman permintaan reset password.
+     * Menampilkan halaman lupa password.
      */
     public function showForgotPassword(): View
     {
@@ -26,100 +25,126 @@ class CustomerPasswordResetController extends Controller
     }
 
     /**
-     * Mengirim tautan reset password ke email pengguna.
+     * Mengganti password secara langsung.
+     *
+     * Fitur ini hanya digunakan untuk demo pada environment local.
      */
-    public function sendResetLink(Request $request): RedirectResponse
+    public function resetDirectly(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'email' => ['required', 'email', 'max:150'],
-        ]);
-
-        $status = Password::sendResetLink([
-            'email' => $validated['email'],
-        ]);
-
-        if ($status === Password::RESET_LINK_SENT) {
-            return back()->with(
-                'success',
-                'Tautan reset password telah dikirim. Silakan periksa email Anda.'
-            );
+        if (! app()->environment('local')) {
+            return back()
+                ->withErrors([
+                    'email' => 'Reset password langsung hanya tersedia pada lingkungan lokal.',
+                ])
+                ->onlyInput('email', 'nomor_whatsapp');
         }
 
-        $message = $status === Password::RESET_THROTTLED
-            ? 'Permintaan reset password terlalu sering. Silakan tunggu beberapa saat.'
-            : 'Email tidak ditemukan pada sistem.';
-
-        return back()
-            ->withErrors([
-                'email' => $message,
-            ])
-            ->onlyInput('email');
-    }
-
-    /**
-     * Menampilkan formulir untuk membuat password baru.
-     */
-    public function showResetPassword(
-        Request $request,
-        string $token
-    ): View {
-        $website = PengaturanWebsite::query()->first();
-
-        return view('auth.reset-password', [
-            'website' => $website,
-            'token' => $token,
-            'email' => $request->query('email'),
-        ]);
-    }
-
-    /**
-     * Memvalidasi token dan mengganti password pengguna.
-     */
-    public function resetPassword(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'token' => ['required', 'string'],
-            'email' => ['required', 'email', 'max:150'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
-        $status = Password::reset(
+        $validated = $request->validate(
             [
-                'email' => $validated['email'],
-                'password' => $validated['password'],
-                'password_confirmation' => $request->password_confirmation,
-                'token' => $validated['token'],
+                'email' => [
+                    'required',
+                    'email',
+                    'max:150',
+                ],
+                'nomor_whatsapp' => [
+                    'required',
+                    'string',
+                    'max:30',
+                ],
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8',
+                    'confirmed',
+                ],
             ],
-            function (User $user, string $password): void {
-                $user->forceFill([
-                    'password' => Hash::make($password),
-                ])->setRememberToken(Str::random(60));
-
-                $user->save();
-
-                event(new PasswordReset($user));
-            }
+            [
+                'email.required' => 'Email wajib diisi.',
+                'email.email' => 'Format email tidak valid.',
+                'nomor_whatsapp.required' => 'Nomor WhatsApp wajib diisi.',
+                'password.required' => 'Password baru wajib diisi.',
+                'password.min' => 'Password baru minimal 8 karakter.',
+                'password.confirmed' => 'Konfirmasi password baru tidak sesuai.',
+            ]
         );
 
-        if ($status === Password::PASSWORD_RESET) {
-            return redirect()
-                ->route('login')
-                ->with(
-                    'success',
-                    'Password berhasil diperbarui. Silakan login menggunakan password baru.'
-                );
+        $user = User::query()
+            ->where('email', $validated['email'])
+            ->first();
+
+        $nomorInput = $this->normalizeWhatsappNumber(
+            $validated['nomor_whatsapp']
+        );
+
+        $nomorUser = $this->normalizeWhatsappNumber(
+            $user?->nomor_whatsapp
+        );
+
+        if (! $user || ! $nomorInput || $nomorInput !== $nomorUser) {
+            return back()
+                ->withErrors([
+                    'email' => 'Email atau nomor WhatsApp tidak cocok dengan data akun.',
+                ])
+                ->onlyInput('email', 'nomor_whatsapp');
         }
 
-        $message = match ($status) {
-            Password::INVALID_TOKEN => 'Tautan reset password tidak valid atau sudah kedaluwarsa.',
-            Password::INVALID_USER => 'Email tidak ditemukan pada sistem.',
-            default => 'Password gagal diperbarui. Silakan ulangi proses reset password.',
-        };
+        $user->forceFill([
+            'password' => Hash::make($validated['password']),
+        ]);
 
-        return back()
-            ->withErrors([
-                'email' => $message,
-            ])
-            ->withInput($request->only('email'));
+        $user->setRememberToken(Str::random(60));
+        $user->save();
+
+        /*
+         * Menghapus token reset lama jika sebelumnya pernah dibuat.
+         */
+        DB::table('password_reset_tokens')
+            ->where('email', $user->email)
+            ->delete();
+
+        /*
+         * Menghapus sesi login lama milik pengguna.
+         * SESSION_DRIVER proyek menggunakan database.
+         */
+        DB::table('sessions')
+            ->where('user_id', $user->id)
+            ->delete();
+
+        return redirect()
+            ->route('login')
+            ->with(
+                'success',
+                'Password berhasil diganti. Silakan login menggunakan password baru.'
+            );
+    }
+
+    /**
+     * Menyamakan format nomor WhatsApp.
+     *
+     * Contoh:
+     * 081234567890 menjadi 6281234567890
+     * 81234567890 menjadi 6281234567890
+     */
+    private function normalizeWhatsappNumber(?string $number): ?string
+    {
+        if (! $number) {
+            return null;
+        }
+
+        $number = preg_replace('/[^0-9]/', '', $number);
+
+        if (! $number) {
+            return null;
+        }
+
+        if (str_starts_with($number, '0')) {
+            return '62' . substr($number, 1);
+        }
+
+        if (str_starts_with($number, '8')) {
+            return '62' . $number;
+        }
+
+        return $number;
     }
 }
