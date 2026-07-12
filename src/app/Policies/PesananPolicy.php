@@ -23,7 +23,8 @@ class PesananPolicy
      */
     public function view(User $user, Pesanan $pesanan): bool
     {
-        return $user->can('view_pesanan');
+        return $user->can('view_pesanan')
+            || $pesanan->user_id === $user->id;
     }
 
     /**
