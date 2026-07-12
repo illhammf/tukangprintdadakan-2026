@@ -72,20 +72,11 @@ Route::middleware('guest')->group(function () {
 
     Route::post(
         '/lupa-password',
-        [CustomerPasswordResetController::class, 'sendResetLink']
-    )->name('password.email');
-
-    Route::get(
-        '/reset-password/{token}',
-        [CustomerPasswordResetController::class, 'showResetPassword']
-    )->name('password.reset');
-
-    Route::post(
-        '/reset-password',
-        [CustomerPasswordResetController::class, 'resetPassword']
-    )->name('password.update');
+        [CustomerPasswordResetController::class, 'resetDirectly']
+    )
+        ->middleware('throttle:5,10')
+        ->name('password.direct-update');
 });
-
 /*
 |--------------------------------------------------------------------------
 | Customer Logout
