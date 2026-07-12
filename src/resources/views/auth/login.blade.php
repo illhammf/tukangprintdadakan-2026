@@ -44,11 +44,12 @@
 
                     <div class="form-group">
                         <label for="password">Password</label>
+
                         <input
                             type="password"
                             id="password"
                             name="password"
-                            placeholder="Masukkan password"
+                            autocomplete="current-password"
                             required
                         >
 
@@ -57,13 +58,14 @@
                         @enderror
                     </div>
 
-                    <label class="checkbox-row">
-                        <input type="checkbox" name="remember" value="1">
-                        <span>Ingat saya</span>
-                    </label>
+                    <div style="text-align: right;">
+                        <a href="{{ route('password.request') }}">
+                            Lupa password?
+                        </a>
+                    </div>
 
                     <button type="submit" class="btn-primary full">
-                        Masuk
+                        Login
                     </button>
                 </form>
             </div>
