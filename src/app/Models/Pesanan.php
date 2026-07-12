@@ -156,26 +156,33 @@ class Pesanan extends Model
         });
 
         static::updated(function (Pesanan $pesanan) {
-            if ($pesanan->wasChanged('lokasi_pengambilan')) {
-                $metodePengiriman = match ($pesanan->lokasi_pengambilan) {
-                    'Ojek Online' => 'ojek_online',
-                    'Diantar' => 'antar',
-                    default => 'ambil_di_kampus',
-                };
-
-                $biayaPengiriman = $pesanan->lokasi_pengambilan === 'Diantar' ? 5000 : 0;
-
-                $pesanan->pengiriman()->updateOrCreate(
-                    ['pesanan_id' => $pesanan->id],
-                    [
-                        'metode_pengiriman' => $metodePengiriman,
-                        'alamat_pengiriman' => $pesanan->detail_lokasi,
-                        'biaya_pengiriman' => $biayaPengiriman,
-                    ]
-                );
-
-                $pesanan->updateRingkasanBiaya();
+            if (! $pesanan->wasChanged([
+                'lokasi_pengambilan',
+                'detail_lokasi',
+            ])) {
+                return;
             }
+
+            $metodePengiriman = match ($pesanan->lokasi_pengambilan) {
+                'Ojek Online' => 'ojek_online',
+                'Diantar' => 'antar',
+                default => 'ambil_di_kampus',
+            };
+
+            $biayaPengiriman = $pesanan->lokasi_pengambilan === 'Diantar'
+                ? 5000
+                : 0;
+
+            $pesanan->pengiriman()->updateOrCreate(
+                [],
+                [
+                    'metode_pengiriman' => $metodePengiriman,
+                    'alamat_pengiriman' => $pesanan->detail_lokasi,
+                    'biaya_pengiriman' => $biayaPengiriman,
+                ]
+            );
+
+            $pesanan->updateRingkasanBiaya();
         });
     }
 }
