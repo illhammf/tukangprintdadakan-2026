@@ -1991,3 +1991,47 @@ select {
     word-break: break-word;
     text-align: right;
 }
+
+/* tambahan css untuk halaman login */
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-input-wrapper input {
+    width: 100%;
+    padding-right: 50px;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    color: #64748b;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    transform: translateY(-50%);
+}
+
+.password-toggle:hover {
+    color: #2563eb;
+}
+
+.password-toggle:focus-visible {
+    border-radius: 6px;
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+
+.password-toggle svg {
+    display: block;
+}
+
+.password-toggle svg[hidden] {
+    display: none;
+}
