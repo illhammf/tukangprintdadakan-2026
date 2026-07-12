@@ -2,48 +2,134 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard Pelanggan - Tukang Print Dadakan')</title>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta name="theme-color" content="#1d4ed8">
+
+    <title>
+        @yield(
+            'title',
+            'Dashboard Pelanggan - Tukang Print Dadakan'
+        )
+    </title>
 
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <link rel="stylesheet" href="{{ asset('css/frontend.css') }}">
+
+    @stack('styles')
 </head>
-<body>
+
+<body class="customer-page">
+    <a href="#mainContent" class="skip-link">
+        Lewati ke konten utama
+    </a>
+
     @php
-        $namaWebsite = $website?->nama_website ?? 'Tukang Print Dadakan';
+        $namaWebsite = $website?->nama_website
+            ?? 'Tukang Print Dadakan';
 
         $logoUrl = $website?->logo
             ? \Illuminate\Support\Facades\Storage::url($website->logo)
             : asset('images/placeholder.png');
+
+        $namaPelanggan = auth()->user()?->name ?? 'Pelanggan';
+
+        $inisialPelanggan = strtoupper(
+            substr($namaPelanggan, 0, 1)
+        );
     @endphp
+
+    <div
+        class="nav-backdrop"
+        data-nav-close
+        aria-hidden="true"
+    ></div>
 
     <header class="customer-header">
         <div class="container customer-header-wrapper">
-            <a href="{{ route('home') }}" class="brand">
-                <img src="{{ $logoUrl }}" alt="{{ $namaWebsite }}" class="brand-logo">
+            <a
+                href="{{ route('customer.dashboard') }}"
+                class="brand"
+                aria-label="Dashboard {{ $namaWebsite }}"
+            >
+                <img
+                    src="{{ $logoUrl }}"
+                    alt="Logo {{ $namaWebsite }}"
+                    class="brand-logo"
+                >
+
                 <span>{{ $namaWebsite }}</span>
             </a>
 
-            <button class="nav-toggle" type="button" aria-label="Buka menu pelanggan">
+            <button
+                class="nav-toggle"
+                type="button"
+                aria-label="Buka menu pelanggan"
+                aria-controls="siteNav"
+                aria-expanded="false"
+                data-nav-toggle
+            >
                 <span></span>
                 <span></span>
                 <span></span>
             </button>
 
-            <nav class="customer-nav" id="siteNav">
-                <a href="{{ route('customer.dashboard') }}" class="{{ request()->routeIs('customer.dashboard') ? 'active' : '' }}">
+            <nav
+                class="customer-nav"
+                id="siteNav"
+                aria-label="Navigasi pelanggan"
+                data-nav-menu
+            >
+                <div class="customer-nav-user">
+                    <span class="customer-nav-avatar">
+                        {{ $inisialPelanggan }}
+                    </span>
+
+                    <span>
+                        <small>Masuk sebagai</small>
+                        <strong>
+                            {{ \Illuminate\Support\Str::limit(
+                                $namaPelanggan,
+                                18
+                            ) }}
+                        </strong>
+                    </span>
+                </div>
+
+                <a
+                    href="{{ route('customer.dashboard') }}"
+                    class="{{ request()->routeIs('customer.dashboard') ? 'active' : '' }}"
+                >
                     Dashboard
                 </a>
 
-                <a href="{{ route('customer.pesanan.create') }}" class="{{ request()->routeIs('customer.pesanan.create') ? 'active' : '' }}">
+                <a
+                    href="{{ route('customer.pesanan.create') }}"
+                    class="{{ request()->routeIs('customer.pesanan.create') ? 'active' : '' }}"
+                >
                     Buat Pesanan
                 </a>
 
-                <a href="{{ route('customer.pesanan.index') }}" class="{{ request()->routeIs('customer.pesanan.index') || request()->routeIs('customer.pesanan.show') ? 'active' : '' }}">
+                <a
+                    href="{{ route('customer.pesanan.index') }}"
+                    class="{{
+                        request()->routeIs('customer.pesanan.index')
+                        || request()->routeIs('customer.pesanan.show')
+                            ? 'active'
+                            : ''
+                    }}"
+                >
                     Pesanan Saya
                 </a>
 
-                <a href="{{ route('customer.profil.edit') }}" class="{{ request()->routeIs('customer.profil.*') ? 'active' : '' }}">
+                <a
+                    href="{{ route('customer.profil.edit') }}"
+                    class="{{ request()->routeIs('customer.profil.*') ? 'active' : '' }}"
+                >
                     Profil
                 </a>
 
@@ -51,9 +137,17 @@
                     Website
                 </a>
 
-                <form action="{{ route('logout') }}" method="POST" class="logout-form">
+                <form
+                    action="{{ route('logout') }}"
+                    method="POST"
+                    class="logout-form"
+                >
                     @csrf
-                    <button type="submit" class="btn-nav danger">
+
+                    <button
+                        type="submit"
+                        class="btn-nav danger"
+                    >
                         Logout
                     </button>
                 </form>
@@ -61,7 +155,7 @@
         </div>
     </header>
 
-    <main>
+    <main id="mainContent" tabindex="-1">
         @if (session('success'))
             <div class="container">
                 <div class="alert alert-success">
@@ -82,5 +176,7 @@
     </main>
 
     <script src="{{ asset('js/frontend.js') }}" defer></script>
+
+    @stack('scripts')
 </body>
 </html>
