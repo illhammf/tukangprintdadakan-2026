@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Admin\Pages\Dashboard;
 use App\Filament\Admin\Widgets\LatestAccessLogs;
 use App\Filament\Admin\Widgets\LayananTerlaris;
 use App\Filament\Admin\Widgets\PengambilanBesok;
@@ -21,6 +20,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
+use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -43,74 +43,35 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            /*
-            |--------------------------------------------------------------------------
-            | Identitas Panel
-            |--------------------------------------------------------------------------
-            */
-
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName('Tukang Print Dadakan')
-            ->font('Montserrat')
-
-            /*
-            |--------------------------------------------------------------------------
-            | Autentikasi
-            |--------------------------------------------------------------------------
-            */
-
+            ->spa()
             ->login()
             ->passwordReset()
-
-            /*
-            |--------------------------------------------------------------------------
-            | Tampilan Panel
-            |--------------------------------------------------------------------------
-            */
-
-            ->spa()
             ->defaultThemeMode(ThemeMode::Light)
+            ->font('Montserrat')
             ->colors([
-                'primary' => Color::Amber,
-                'success' => Color::Emerald,
-                'warning' => Color::Orange,
-                'danger' => Color::Rose,
-                'info' => Color::Sky,
-                'gray' => Color::Slate,
+                'primary' => Color::Blue,
             ])
             ->maxContentWidth(MaxWidth::SevenExtraLarge)
             ->sidebarCollapsibleOnDesktop()
-            ->unsavedChangesAlerts()
-
-            /*
-            |--------------------------------------------------------------------------
-            | Resources, Pages, dan Clusters
-            |--------------------------------------------------------------------------
-            */
 
             ->discoverResources(
                 in: app_path('Filament/Admin/Resources'),
-                for: 'App\\Filament\\Admin\\Resources',
+                for: 'App\\Filament\\Admin\\Resources'
             )
             ->discoverPages(
                 in: app_path('Filament/Admin/Pages'),
-                for: 'App\\Filament\\Admin\\Pages',
+                for: 'App\\Filament\\Admin\\Pages'
             )
             ->pages([
-                Dashboard::class,
+                Pages\Dashboard::class,
             ])
             ->discoverClusters(
                 in: app_path('Filament/Admin/Clusters'),
-                for: 'App\\Filament\\Admin\\Clusters',
+                for: 'App\\Filament\\Admin\\Clusters'
             )
-
-            /*
-            |--------------------------------------------------------------------------
-            | Widget Dashboard
-            |--------------------------------------------------------------------------
-            */
 
             ->widgets([
                 SambutanDashboard::class,
@@ -122,62 +83,26 @@ class AdminPanelProvider extends PanelProvider
                 LatestAccessLogs::class,
             ])
 
-            /*
-            |--------------------------------------------------------------------------
-            | Grup Navigasi
-            |--------------------------------------------------------------------------
-            */
-
             ->navigationGroups([
                 NavigationGroup::make()
-                    ->label('Master Data')
-                    ->icon('heroicon-o-circle-stack'),
+                    ->label('Master Data'),
 
                 NavigationGroup::make()
-                    ->label('Pemesanan dan Transaksi')
-                    ->icon('heroicon-o-shopping-bag'),
+                    ->label('Pemesanan'),
 
                 NavigationGroup::make()
-                    ->label('Website dan Operasional')
-                    ->icon('heroicon-o-globe-alt'),
+                    ->label('Website'),
 
                 NavigationGroup::make()
-                    ->label('Administrasi Sistem')
-                    ->icon('heroicon-o-shield-check'),
+                    ->label('Administration'),
             ])
-
-            /*
-            |--------------------------------------------------------------------------
-            | Menu Pengguna
-            |--------------------------------------------------------------------------
-            */
 
             ->userMenuItems([
                 'profile' => MenuItem::make()
-                    ->label(
-                        fn (): string => Auth::user()?->name
-                            ? 'Profil ' . Auth::user()->name
-                            : 'Profil Saya'
-                    )
-                    ->url(
-                        fn (): string => EditProfilePage::getUrl()
-                    )
+                    ->label(fn (): string => Auth::user()?->name ?? 'Profil Saya')
+                    ->url(fn (): string => EditProfilePage::getUrl())
                     ->icon('heroicon-m-user-circle'),
-
-                'website' => MenuItem::make()
-                    ->label('Buka Website')
-                    ->url(
-                        fn (): string => route('home')
-                    )
-                    ->icon('heroicon-m-globe-alt')
-                    ->openUrlInNewTab(),
             ])
-
-            /*
-            |--------------------------------------------------------------------------
-            | Plugin
-            |--------------------------------------------------------------------------
-            */
 
             ->plugins([
                 FilamentShieldPlugin::make()
@@ -198,16 +123,14 @@ class AdminPanelProvider extends PanelProvider
                 ThemesPlugin::make(),
 
                 FilamentProgressbarPlugin::make()
-                    ->color('#f59e0b'),
+                    ->color('#29b'),
 
                 AuthUIEnhancerPlugin::make()
                     ->showEmptyPanelOnMobile(false)
                     ->formPanelPosition('right')
-                    ->formPanelWidth('42%')
-                    ->emptyPanelBackgroundImageOpacity('82%')
-                    ->emptyPanelBackgroundImageUrl(
-                        asset('images/paneladmin.png')
-                    ),
+                    ->formPanelWidth('40%')
+                    ->emptyPanelBackgroundImageOpacity('70%')
+                    ->emptyPanelBackgroundImageUrl(asset('images/paneladmin.png')),
 
                 LightSwitchPlugin::make()
                     ->position(Alignment::BottomCenter)
@@ -217,8 +140,8 @@ class AdminPanelProvider extends PanelProvider
                     ]),
 
                 FilamentEditProfilePlugin::make()
-                    ->slug('profil-saya')
-                    ->setTitle('Profil Saya')
+                    ->slug('my-profile')
+                    ->setTitle('My Profile')
                     ->shouldRegisterNavigation(false)
                     ->shouldShowDeleteAccountForm(false)
                     ->shouldShowSanctumTokens(false)
@@ -226,19 +149,7 @@ class AdminPanelProvider extends PanelProvider
                     ->shouldShowAvatarForm(),
             ])
 
-            /*
-            |--------------------------------------------------------------------------
-            | Custom Theme
-            |--------------------------------------------------------------------------
-            */
-
             ->viteTheme('resources/css/filament/admin/theme.css')
-
-            /*
-            |--------------------------------------------------------------------------
-            | Middleware
-            |--------------------------------------------------------------------------
-            */
 
             ->middleware([
                 EncryptCookies::class,
@@ -252,6 +163,7 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
                 SetTheme::class,
             ])
+
             ->authMiddleware([
                 Authenticate::class,
             ]);
