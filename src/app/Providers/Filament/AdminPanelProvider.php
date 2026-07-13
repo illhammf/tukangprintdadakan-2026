@@ -129,7 +129,7 @@ class AdminPanelProvider extends PanelProvider
                     ->showEmptyPanelOnMobile(false)
                     ->formPanelPosition('right')
                     ->formPanelWidth('40%')
-                    ->emptyPanelBackgroundImageOpacity('70%')
+                    ->emptyPanelBackgroundImageOpacity('90%')
                     ->emptyPanelBackgroundImageUrl(asset('images/paneladmin.png')),
 
                 LightSwitchPlugin::make()
