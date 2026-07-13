@@ -1,8 +1,8 @@
 <?php
 
-namespace BezhanSalleh\FilamentShield\Resources\RoleResource\Pages;
+namespace App\Filament\Admin\Resources\RoleResource\Pages;
 
-use BezhanSalleh\FilamentShield\Resources\RoleResource;
+use App\Filament\Admin\Resources\RoleResource;
 use BezhanSalleh\FilamentShield\Support\Utils;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Arr;
@@ -16,31 +16,61 @@ class CreateRole extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        $tenantForeignKey = Utils::getTenantModelForeignKey();
+
         $this->permissions = collect($data)
-            ->filter(function ($permission, $key) {
-                return ! in_array($key, ['name', 'guard_name', 'select_all', Utils::getTenantModelForeignKey()]);
+            ->filter(function ($permission, $key) use ($tenantForeignKey) {
+                return ! in_array(
+                    $key,
+                    [
+                        'name',
+                        'guard_name',
+                        'select_all',
+                        $tenantForeignKey,
+                    ],
+                    true
+                );
             })
             ->values()
             ->flatten()
-            ->unique();
+            ->filter()
+            ->unique()
+            ->values();
 
-        if (Arr::has($data, Utils::getTenantModelForeignKey())) {
-            return Arr::only($data, ['name', 'guard_name', Utils::getTenantModelForeignKey()]);
+        if (
+            $tenantForeignKey
+            && Arr::has($data, $tenantForeignKey)
+        ) {
+            return Arr::only(
+                $data,
+                [
+                    'name',
+                    'guard_name',
+                    $tenantForeignKey,
+                ]
+            );
         }
 
-        return Arr::only($data, ['name', 'guard_name']);
+        return Arr::only(
+            $data,
+            [
+                'name',
+                'guard_name',
+            ]
+        );
     }
 
     protected function afterCreate(): void
     {
-        $permissionModels = collect();
-        $this->permissions->each(function ($permission) use ($permissionModels) {
-            $permissionModels->push(Utils::getPermissionModel()::firstOrCreate([
-                /** @phpstan-ignore-next-line */
-                'name' => $permission,
-                'guard_name' => $this->data['guard_name'],
-            ]));
-        });
+        $permissionModel = Utils::getPermissionModel();
+
+        $permissionModels = $this->permissions
+            ->map(function (string $permission) use ($permissionModel) {
+                return $permissionModel::firstOrCreate([
+                    'name' => $permission,
+                    'guard_name' => $this->data['guard_name'],
+                ]);
+            });
 
         $this->record->syncPermissions($permissionModels);
     }
