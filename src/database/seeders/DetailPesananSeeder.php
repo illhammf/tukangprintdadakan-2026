@@ -29,7 +29,7 @@ class DetailPesananSeeder extends Seeder
                 'jenis_print' => 'hitam_putih',
                 'ukuran_kertas' => 'A4',
                 'jumlah_halaman' => 10,
-                'jumlah_copy' => 1,
+                'jumlah_cetak' => 1,
                 'harga_satuan' => 500,
                 'subtotal' => 5000,
                 'pakai_jilid' => false,
