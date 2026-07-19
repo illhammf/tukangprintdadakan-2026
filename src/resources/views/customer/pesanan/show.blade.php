@@ -2741,11 +2741,11 @@
                                                 </div>
 
                                                 <div class="order-file-detail-item">
-                                                    <span>Cetak</span>
+                                                    <span>Copy</span>
                                                     <strong>
                                                         {{
                                                             $detail
-                                                                ->jumlah_cetak
+                                                                ->jumlah_copy
                                                             ?? 0
                                                         }}
                                                     </strong>

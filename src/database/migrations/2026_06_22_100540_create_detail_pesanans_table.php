@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('jenis_print', ['hitam_putih', 'warna'])->nullable();
             $table->string('ukuran_kertas')->default('A4');
             $table->integer('jumlah_halaman')->default(1);
-            $table->integer('jumlah_cetak')->default(1);
+            $table->integer('jumlah_copy')->default(1);
             $table->decimal('harga_satuan', 12, 2)->default(0);
             $table->decimal('subtotal', 12, 2)->default(0);
             $table->boolean('pakai_jilid')->default(false);

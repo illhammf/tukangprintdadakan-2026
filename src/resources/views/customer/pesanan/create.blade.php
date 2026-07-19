@@ -2565,10 +2565,10 @@
                                     <div class="order-form-group">
                                         <div class="order-form-label-row">
                                             <label
-                                                for="jumlah_cetak"
+                                                for="jumlah_copy"
                                                 class="order-form-label"
                                             >
-                                                Jumlah Cetak
+                                                Jumlah Copy
                                                 <span class="order-required">*</span>
                                             </label>
                                         </div>
@@ -2576,16 +2576,16 @@
                                         <div class="order-number-wrapper">
                                             <input
                                                 type="number"
-                                                id="jumlah_cetak"
-                                                name="jumlah_cetak"
+                                                id="jumlah_copy"
+                                                name="jumlah_copy"
                                                 value="{{
                                                     old(
-                                                        'jumlah_cetak',
+                                                        'jumlah_copy',
                                                         1
                                                     )
                                                 }}"
                                                 class="order-input {{
-                                                    $errors->has('jumlah_cetak')
+                                                    $errors->has('jumlah_copy')
                                                         ? 'is-invalid'
                                                         : ''
                                                 }}"
@@ -2599,7 +2599,7 @@
                                             </span>
                                         </div>
 
-                                        @error('jumlah_cetak')
+                                        @error('jumlah_copy')
                                             <span class="order-field-error">
                                                 {{ $message }}
                                             </span>

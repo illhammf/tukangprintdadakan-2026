@@ -15,7 +15,7 @@ class DetailPesanan extends Model
         'jenis_print',
         'ukuran_kertas',
         'jumlah_halaman',
-        'jumlah_cetak',
+        'jumlah_copy',
         'harga_satuan',
         'subtotal',
         'pakai_jilid',
