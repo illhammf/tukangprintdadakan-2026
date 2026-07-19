@@ -82,7 +82,7 @@ class PesananController extends Controller
             'jenis_print' => ['nullable', 'in:hitam_putih,warna'],
             'ukuran_kertas' => ['required', 'string', 'max:20'],
             'jumlah_halaman' => ['required', 'integer', 'min:1'],
-            'jumlah_copy' => ['required', 'integer', 'min:1'],
+            'jumlah_cetak' => ['required', 'integer', 'min:1'],
 
             'pakai_jilid' => ['nullable', 'boolean'],
             'pakai_laminating' => ['nullable', 'boolean'],
@@ -145,7 +145,7 @@ class PesananController extends Controller
 
                 $subtotal = $hargaSatuan
                     * (int) $validated['jumlah_halaman']
-                    * (int) $validated['jumlah_copy'];
+                    * (int) $validated['jumlah_cetak'];
 
                 if ($request->boolean('pakai_jilid')) {
                     $subtotal += (float) ($pengaturanBooking?->biaya_jilid ?? 0);
@@ -162,7 +162,7 @@ class PesananController extends Controller
                     'jenis_print' => $validated['jenis_print'] ?? null,
                     'ukuran_kertas' => $validated['ukuran_kertas'],
                     'jumlah_halaman' => $validated['jumlah_halaman'],
-                    'jumlah_copy' => $validated['jumlah_copy'],
+                    'jumlah_cetak' => $validated['jumlah_cetak'],
                     'harga_satuan' => $hargaSatuan,
                     'subtotal' => $subtotal,
                     'pakai_jilid' => $request->boolean('pakai_jilid'),
@@ -343,7 +343,7 @@ class PesananController extends Controller
         }
 
         $totalLembar = (int) $validated['jumlah_halaman']
-            * (int) $validated['jumlah_copy']
+            * (int) $validated['jumlah_cetak']
             * $jumlahFile;
 
         if (
@@ -375,7 +375,7 @@ class PesananController extends Controller
                     . "   Jenis Print: {$jenisPrint}\n"
                     . "   Ukuran: {$detail->ukuran_kertas}\n"
                     . "   Halaman: {$detail->jumlah_halaman}\n"
-                    . "   Copy: {$detail->jumlah_copy}\n"
+                    . "   Cetak: {$detail->jumlah_cetak}\n"
                     . "   Jilid: " . ($detail->pakai_jilid ? 'Ya' : 'Tidak') . "\n"
                     . "   Laminating: " . ($detail->pakai_laminating ? 'Ya' : 'Tidak') . "\n"
                     . "   Subtotal: Rp " . number_format((float) $detail->subtotal, 0, ',', '.');
