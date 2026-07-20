@@ -34,8 +34,6 @@ Project ini dikembangkan sebagai **tugas akhir mata kuliah Pemrograman Web** pad
 
 ---
 
-<p align="center">
-
 ## Informasi Project
 
 | Informasi | Keterangan |
@@ -52,8 +50,6 @@ Project ini dikembangkan sebagai **tugas akhir mata kuliah Pemrograman Web** pad
 | Jalur Capstone | Web |
 | Repository | [github.com/ilhammf/tukangprintdadakan-2026](https://github.com/ilhammf/tukangprintdadakan-2026) |
 | Website | [print.ilhamfirmansyah.store](https://print.ilhamfirmansyah.store) |
-
-</p>
 
 ---
 
@@ -576,7 +572,7 @@ Data yang digunakan dalam dokumentasi publik harus menggunakan data dummy atau t
 
 ---
 
-## Disclaimer
+## Penafian (Disclaimer)
 
 Project ini dikembangkan untuk memenuhi tugas akhir mata kuliah **Pemrograman Web** pada Program Studi Teknik Informatika, Universitas Esa Unggul.
 
