@@ -3,6 +3,10 @@ PROJECT AKHIR PEMROGRAMAN WEB (CR002) <br>
 TUKANG PRINT DADAKAN
 </h1>
 
+<p align="center">
+  Sistem Pemesanan dan Pengelolaan Layanan Cetak Mahasiswa Berbasis Web.
+</p>
+
 ---
 
 <p align="center">
