@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+message: "Jika menggunakan atau merujuk perangkat lunak ini dalam karya akademik, mohon kutip menggunakan metadata berikut."
+type: software
+
+title: "Tukang Print Dadakan: Sistem Pemesanan dan Pengelolaan Layanan Cetak Mahasiswa Berbasis Web"
+
+abstract: >-
+  Tukang Print Dadakan adalah sistem pemesanan dan pengelolaan layanan cetak
+  mahasiswa berbasis web. Sistem ini memungkinkan pelanggan melihat layanan,
+  membuat pesanan, mengunggah file, memperoleh estimasi biaya, melakukan
+  pembayaran melalui Midtrans, serta memantau status pembayaran dan pengerjaan.
+  Sistem juga menyediakan dashboard admin untuk mengelola pelanggan, kategori,
+  layanan, pesanan, file, pembayaran, antrean pengerjaan, informasi website,
+  transaksi, dan laporan pendapatan. Aplikasi dikembangkan menggunakan Laravel
+  12, Blade, Tailwind CSS, JavaScript, MariaDB, Filament, Docker, Nginx, dan
+  Midtrans.
+
+authors:
+  - family-names: "Firmansyah"
+    given-names: "Ilham"
+    affiliation: "Program Studi Teknik Informatika, Fakultas Ilmu Komputer, Universitas Esa Unggul"
+
+version: "1.0.0"
+date-released: 2026-07-20
+
+repository-code: "https://github.com/ilhammf/tukangprintdadakan-2026"
+url: "https://print.ilhamfirmansyah.store"
+
+license-url: "https://github.com/ilhammf/tukangprintdadakan-2026/blob/main/LICENSE"
+
+keywords:
+  - "Tukang Print Dadakan"
+  - "sistem pemesanan"
+  - "layanan cetak"
+  - "aplikasi web"
+  - "Laravel"
+  - "Filament"
+  - "MariaDB"
+  - "Midtrans"
+  - "Docker"
+  - "Nginx"
+  - "capstone project"
+  - "pemrograman web"
