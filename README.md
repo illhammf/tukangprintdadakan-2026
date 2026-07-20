@@ -34,6 +34,8 @@ Project ini dikembangkan sebagai **tugas akhir mata kuliah Pemrograman Web** pad
 
 ---
 
+<p align="center>
+
 ## Informasi Project
 
 | Informasi | Keterangan |
@@ -51,6 +53,7 @@ Project ini dikembangkan sebagai **tugas akhir mata kuliah Pemrograman Web** pad
 | Repository | [github.com/ilhammf/tukangprintdadakan-2026](https://github.com/ilhammf/tukangprintdadakan-2026) |
 | Website | [print.ilhamfirmansyah.store](https://print.ilhamfirmansyah.store) |
 
+</p>
 ---
 
 ## Latar Belakang
