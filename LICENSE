@@ -1,0 +1,380 @@
+TUKANG PRINT DADAKAN
+ACADEMIC AND NON-COMMERCIAL USE LICENSE
+Version 1.0, July 2026
+
+Copyright (c) 2026 Ilham Firmansyah
+All Rights Reserved.
+
+1. DEFINITIONS
+
+For the purposes of this License:
+
+a. "Software" means the source code, object code, configuration files,
+   database structures, documentation, diagrams, designs, user interfaces,
+   and other materials contained in the Tukang Print Dadakan repository.
+
+b. "Author" means Ilham Firmansyah, the original developer and copyright
+   holder of the Software.
+
+c. "Academic Use" means use for learning, research, classroom activities,
+   academic review, demonstration, or other non-commercial educational
+   purposes.
+
+d. "Commercial Use" means any use intended to obtain direct or indirect
+   financial benefit, business advantage, commercial service, paid product,
+   subscription, consulting service, resale, or revenue-generating activity.
+
+e. "Modification" means any alteration, adaptation, translation,
+   transformation, extension, or derivative work based on the Software.
+
+2. COPYRIGHT OWNERSHIP
+
+The Software and all original materials contained in this repository are
+owned by the Author and protected by applicable copyright and intellectual
+property laws.
+
+Publication of this repository on GitHub does not transfer ownership of the
+Software and does not place the Software in the public domain.
+
+All rights not expressly granted under this License are reserved by the
+Author.
+
+3. PERMITTED USE
+
+Subject to the terms of this License, the Author grants each user a limited,
+revocable, non-exclusive, non-transferable, and non-sublicensable permission
+to:
+
+a. View and study the Software.
+
+b. Clone or download the repository for personal learning and Academic Use.
+
+c. Run the Software locally for testing, demonstration, evaluation, or
+   educational purposes.
+
+d. Examine the architecture, workflow, database design, source code, and
+   documentation for academic reference.
+
+e. Create limited modifications solely for personal learning, coursework,
+   experimentation, or non-commercial research.
+
+f. Refer to concepts, methods, or implementation approaches contained in the
+   Software, provided that proper attribution is given and the Software is
+   not substantially copied.
+
+4. ATTRIBUTION REQUIREMENT
+
+Any permitted academic presentation, report, research, demonstration, or
+modified version that uses material from the Software must include clear
+attribution substantially in the following form:
+
+"Tukang Print Dadakan was originally developed by Ilham Firmansyah as a
+Capstone Project for the Web Programming course at the Informatics
+Engineering Study Program, Faculty of Computer Science, Universitas Esa
+Unggul, 2026."
+
+The original copyright notice and this License must not be removed, hidden,
+or altered.
+
+5. PROHIBITED ACTIVITIES
+
+Without prior written permission from the Author, users may not:
+
+a. Use the Software for Commercial Use.
+
+b. Sell, rent, license, sublicense, lease, monetize, or commercially exploit
+   the Software or any substantial portion of it.
+
+c. Use the Software as part of a paid product, paid service, commercial
+   printing service, software-as-a-service platform, marketplace, or business
+   operation.
+
+d. Redistribute, republish, upload, mirror, or make the complete Software or a
+   substantial portion of it available through another repository, website,
+   file-sharing service, package registry, or distribution platform.
+
+e. Claim the Software, documentation, design, research, or project as their
+   own work.
+
+f. Submit the Software or a substantial copy of it as an academic assignment,
+   final project, thesis, capstone project, competition entry, certification
+   project, or professional portfolio under another person's name.
+
+g. Remove or alter copyright notices, author information, repository history,
+   academic identity, or attribution.
+
+h. Use the name "Tukang Print Dadakan," its logo, visual identity, domain,
+   screenshots, or other branding in a way that suggests endorsement,
+   partnership, ownership, or official affiliation.
+
+i. Use actual customer files, personal data, transaction data, credentials,
+   payment information, or other confidential information contained in or
+   related to the Software.
+
+j. Attempt to obtain, disclose, or misuse passwords, API keys, Midtrans keys,
+   server credentials, private tokens, environment variables, or other
+   confidential configuration.
+
+k. Use the Software for unlawful, fraudulent, deceptive, harmful, or
+   unauthorized activities.
+
+6. MODIFICATIONS AND DERIVATIVE WORKS
+
+Modifications are permitted only for personal Academic Use.
+
+A modified version:
+
+a. Must retain this License and the original copyright notice.
+
+b. Must clearly state that it has been modified.
+
+c. Must not be presented as the official Tukang Print Dadakan application.
+
+d. Must not be distributed publicly or used commercially without prior
+   written permission from the Author.
+
+e. Must not use the original project's name, logo, domain, or branding without
+   prior written permission.
+
+7. COMMERCIAL LICENSING
+
+Commercial use, redistribution, institutional deployment, business
+implementation, integration into another commercial product, or development
+of a commercial derivative requires a separate written agreement from the
+Author.
+
+Requests for commercial permission must identify:
+
+a. The requesting individual or organization.
+
+b. The intended use of the Software.
+
+c. The scope and duration of use.
+
+d. Whether the Software will be modified, distributed, hosted, or sold.
+
+e. The commercial product, service, or organization in which it will be used.
+
+Permission is not granted unless confirmed in writing by the Author.
+
+8. ACADEMIC INTEGRITY
+
+Users are responsible for complying with the academic integrity rules of
+their institution.
+
+Permission to study the Software does not permit plagiarism, unauthorized
+collaboration, misrepresentation of authorship, or submission of copied work
+for academic credit.
+
+Users who reference the Software in academic work must provide proper
+citation and clearly distinguish their own contributions from the Author's
+work.
+
+9. DATA AND PRIVACY
+
+This License does not grant any right to use personal data, customer data,
+uploaded documents, transaction records, authentication credentials,
+payment information, or confidential operational information.
+
+Any data included in demonstrations, research, screenshots, or testing must
+use dummy, anonymized, or lawfully obtained data.
+
+Users are solely responsible for complying with applicable data protection
+and privacy requirements.
+
+10. THIRD-PARTY SOFTWARE
+
+The Software may use third-party frameworks, libraries, packages, services,
+fonts, icons, or other dependencies, including but not limited to Laravel,
+Filament, Tailwind CSS, MariaDB, Docker, Nginx, and Midtrans.
+
+Those third-party components remain subject to their own respective licenses
+and terms of service.
+
+This License applies only to original material created by the Author and does
+not replace, modify, or override any third-party license.
+
+Users are responsible for reviewing and complying with the licenses and terms
+applicable to third-party components.
+
+11. PAYMENT SERVICES
+
+Midtrans and any other payment service used by the Software are external
+services operated by their respective providers.
+
+This License does not grant permission to use another person's Midtrans
+account, credentials, transaction data, merchant identity, or production
+configuration.
+
+Users must obtain and configure their own authorized payment service
+credentials.
+
+12. SECURITY
+
+Users must not publish or distribute:
+
+a. Environment files.
+
+b. Database passwords.
+
+c. Midtrans Server Keys or Client Keys.
+
+d. API tokens.
+
+e. GitHub access tokens.
+
+f. Virtual Private Server credentials.
+
+g. Private encryption or signing keys.
+
+h. Personal customer information.
+
+i. Uploaded customer documents.
+
+The Author is not responsible for security incidents caused by unauthorized
+deployment, unsafe configuration, credential disclosure, or modification of
+the Software.
+
+13. NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED.
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE AUTHOR DISCLAIMS ALL
+WARRANTIES, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, ACCURACY, RELIABILITY, SECURITY,
+NON-INFRINGEMENT, AVAILABILITY, AND ERROR-FREE OPERATION.
+
+THE AUTHOR DOES NOT GUARANTEE THAT THE SOFTWARE WILL MEET ANY PARTICULAR
+REQUIREMENT, OPERATE WITHOUT INTERRUPTION, OR BE SUITABLE FOR PRODUCTION,
+COMMERCIAL, FINANCIAL, OR MISSION-CRITICAL USE.
+
+14. LIMITATION OF LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE AUTHOR SHALL NOT BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+CONSEQUENTIAL, OR OTHER DAMAGES ARISING FROM OR RELATED TO:
+
+a. Use or inability to use the Software.
+
+b. Data loss or corruption.
+
+c. Financial loss.
+
+d. Failed or incorrect payment transactions.
+
+e. Security incidents.
+
+f. Service interruption.
+
+g. Server or infrastructure failure.
+
+h. Third-party services.
+
+i. Academic sanctions or plagiarism claims.
+
+j. Unauthorized modification or deployment.
+
+Users assume all risks associated with their use of the Software.
+
+15. SUPPORT AND MAINTENANCE
+
+This License does not require the Author to provide:
+
+a. Technical support.
+
+b. Installation assistance.
+
+c. Maintenance.
+
+d. Updates.
+
+e. Security patches.
+
+f. Feature development.
+
+g. Compatibility guarantees.
+
+Any support provided by the Author is voluntary unless governed by a separate
+written agreement.
+
+16. TERMINATION
+
+The permission granted under this License automatically terminates if a user
+violates any term of this License.
+
+Upon termination, the user must:
+
+a. Stop using the Software.
+
+b. Delete unauthorized copies.
+
+c. Stop distributing or displaying modified versions.
+
+d. Remove unauthorized deployments.
+
+e. Stop using the project's name, logo, or branding.
+
+Termination does not affect the Author's right to pursue available legal or
+equitable remedies.
+
+17. REINSTATEMENT
+
+A terminated permission may only be reinstated through written authorization
+from the Author.
+
+Correction of a violation does not automatically restore permission.
+
+18. NO TRANSFER OF TRADEMARK RIGHTS
+
+This License does not grant permission to use the name, logo, domain, visual
+identity, or trademarks associated with Tukang Print Dadakan, Universitas Esa
+Unggul, Laravel, Filament, Midtrans, or any other third party.
+
+Any permitted reference to these names must be factual and must not imply
+endorsement or official affiliation.
+
+19. SEVERABILITY
+
+If any provision of this License is found invalid, unlawful, or unenforceable,
+the remaining provisions will continue in effect to the maximum extent
+permitted by applicable law.
+
+20. NO WAIVER
+
+Failure by the Author to enforce any provision of this License does not waive
+the Author's right to enforce that provision or any other provision in the
+future.
+
+21. ENTIRE AGREEMENT
+
+This License constitutes the complete license agreement concerning the
+permitted academic and non-commercial use of the Software, unless replaced or
+supplemented by a separate written agreement signed by the Author.
+
+22. GOVERNING LAW
+
+This License is governed by the applicable laws of the Republic of Indonesia.
+
+Any dispute arising from the use of the Software should first be resolved
+through good-faith communication with the Author. If no resolution is
+reached, the dispute may be handled according to applicable Indonesian law.
+
+23. CONTACT AND PERMISSION REQUESTS
+
+Permission requests, commercial licensing inquiries, and questions concerning
+this License may be submitted through:
+
+Author  : Ilham Firmansyah
+GitHub  : https://github.com/ilhammf
+Project : Tukang Print Dadakan
+Repository:
+https://github.com/ilhammf/tukangprintdadakan-2026
+
+24. ACCEPTANCE
+
+By accessing, cloning, downloading, modifying, running, or otherwise using the
+Software, the user acknowledges that they have read, understood, and agreed
+to comply with this License.
+
+END OF LICENSE
