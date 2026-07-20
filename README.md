@@ -1,6 +1,7 @@
-# Tukang Print Dadakan
-
 <p align="center">
+
+# PROJECT AKHIR PEMROGRAMAN WEB (CR002)
+# TUKANG PRINT DADAKAN
 
 <img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" />
 <img src="https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php&logoColor=white" />
@@ -20,6 +21,9 @@
 
 </p>
 
+---
+
+## Tentang Project
 **Tukang Print Dadakan** adalah sistem pemesanan dan pengelolaan layanan cetak mahasiswa berbasis web. Sistem ini dikembangkan untuk membantu pelanggan melakukan pemesanan layanan cetak secara lebih terstruktur serta membantu pemilik usaha mengelola pesanan, file, pembayaran, antrean pengerjaan, dan laporan operasional dalam satu aplikasi.
 
 Project ini dikembangkan sebagai **tugas akhir mata kuliah Pemrograman Web** pada Program Studi Teknik Informatika, Fakultas Ilmu Komputer, Universitas Esa Unggul.
