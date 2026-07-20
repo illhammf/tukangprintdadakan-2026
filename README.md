@@ -34,7 +34,7 @@ Project ini dikembangkan sebagai **tugas akhir mata kuliah Pemrograman Web** pad
 
 ---
 
-<p align="center>
+<p align="center">
 
 ## Informasi Project
 
