@@ -1,7 +1,11 @@
-<p align="center">
+<h1 align="center">
+PROJECT AKHIR PEMROGRAMAN WEB (CR002) <br>
+TUKANG PRINT DADAKAN
+</h1>
 
-# PROJECT AKHIR PEMROGRAMAN WEB (CR002)
-# TUKANG PRINT DADAKAN
+---
+
+<p align="center">
 
 <img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" />
 <img src="https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php&logoColor=white" />
