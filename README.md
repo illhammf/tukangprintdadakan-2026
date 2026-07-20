@@ -1,11 +1,24 @@
 # Tukang Print Dadakan
 
-![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel&logoColor=white)
-![PHP](https://img.shields.io/badge/PHP-Web%20Application-777BB4?logo=php&logoColor=white)
-![MariaDB](https://img.shields.io/badge/MariaDB-Database-003545?logo=mariadb&logoColor=white)
-![Filament](https://img.shields.io/badge/Filament-Admin%20Panel-FDAE4B)
-![Midtrans](https://img.shields.io/badge/Midtrans-Payment%20Gateway-1F73B7)
-![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)
+<p align="center">
+
+<img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" />
+<img src="https://img.shields.io/badge/PHP-8.2-777BB4?style=for-the-badge&logo=php&logoColor=white" />
+<img src="https://img.shields.io/badge/Filament-Admin%20Panel-F59E0B?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Docker-Container-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
+<img src="https://img.shields.io/badge/MariaDB-Database-003545?style=for-the-badge&logo=mariadb&logoColor=white" />
+<img src="https://img.shields.io/badge/Midtrans-Payment-1F73B7?style=for-the-badge&logo=midtranspayment&logoColor=white">
+<img src="https://img.shields.io/github/actions/workflow/status/illhammf/tukangprintdadakan-2026/laravel.yml?style=for-the-badge&label=Laravel%20CI&logo=githubactions&logoColor=white" />
+
+</p>
+
+<p align="center">
+
+<img src="https://img.shields.io/github/last-commit/illhammf/tukangprintdadakan-2026?style=for-the-badge" />
+<img src="https://img.shields.io/github/repo-size/illhammf/tukangprintdadakan-2026?style=for-the-badge" />
+<img src="https://komarev.com/ghpvc/?username=illhammf&repo=tukangprintdadakan-2026&style=for-the-badge&color=blue" />
+
+</p>
 
 **Tukang Print Dadakan** adalah sistem pemesanan dan pengelolaan layanan cetak mahasiswa berbasis web. Sistem ini dikembangkan untuk membantu pelanggan melakukan pemesanan layanan cetak secara lebih terstruktur serta membantu pemilik usaha mengelola pesanan, file, pembayaran, antrean pengerjaan, dan laporan operasional dalam satu aplikasi.
 
